@@ -16,19 +16,17 @@ const actionInputSchema = z.object({
 function processContent(text: string): string {
     if (!text) return '';
 
-    // The order of these replacements is critical. We process in passes.
-
-    // Pass 1: Iteratively handle nested formatting commands. This is safer than recursion.
-    let processedText = text;
+    // Pass 1: Handle links first. This is a common source of issues and must be done before other replacements.
+    let processedText = text.replace(/\\href\{([^}]*)\}\{([^}]*)\}/g, (_, url, linkText) => {
+        return `<a href="${url.trim()}" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
+    });
+    
+    // Pass 2: Iteratively handle nested formatting commands. This is safer than recursion.
     let changed = true;
     while(changed) {
         const originalText = processedText;
         
         processedText = processedText
-            // Handle links first as they are a common source of issues
-            .replace(/\\href\{([^}]*)\}\{([^}]*)\}/g, (_, url, linkText) => {
-                return `<a href="${url.trim()}" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
-            })
             .replace(/{\\Huge\s(.*?)}|\\Huge\{(.*?)\}/gs, '<h1>$1$2</h1>')
             .replace(/{\\LARGE\s(.*?)}|\\LARGE\{(.*?)\}/gs, '<h2>$1$2</h2>')
             .replace(/{\\Large\s(.*?)}|\\Large\{(.*?)\}/gs, '<h3>$1$2</h3>')
@@ -41,7 +39,7 @@ function processContent(text: string): string {
         changed = originalText !== processedText;
     }
     
-    // Pass 2: Handle escaped characters, symbols, and line breaks
+    // Pass 3: Handle escaped characters, symbols, and line breaks
     processedText = processedText
         .replace(/\\itemsep\s*.*?\s*\{.*?\}/g, '') // Remove itemsep
         .replace(/\\(tab|itab)\{.*?\}/g, '')      // Remove custom tab commands
