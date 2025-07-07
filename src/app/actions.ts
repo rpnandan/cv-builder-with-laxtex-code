@@ -40,7 +40,7 @@ function processContent(text: string): string {
         .replace(/\\{/g, '{')
         .replace(/\\}/g, '}')
         .replace(/\\today/g, new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }))
-        .replace(/\\\\(?:\[.*?\])?/g, '<br />')
+        .replace(/\\\\(?:\[.*?\])?|\\(?=\s*[\r\n]|$)/g, '<br />')
         .replace(/\\quad/g, '&emsp;')
         .replace(/\\qquad/g, '&emsp;&emsp;')
         .replace(/~/g, '&nbsp;')
