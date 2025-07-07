@@ -16,22 +16,35 @@ const actionInputSchema = z.object({
 function processContent(text: string): string {
     if (!text) return '';
 
-    // Recursive processing of formatting commands
-    let processedText = text
-        .replace(/{\\Huge\s(.*?)}|\\Huge\{(.*?)\}/gs, (_, g1, g2) => `<h1>${processContent(g1 || g2 || '')}</h1>`)
-        .replace(/{\\LARGE\s(.*?)}|\\LARGE\{(.*?)\}/gs, (_, g1, g2) => `<h2>${processContent(g1 || g2 || '')}</h2>`)
-        .replace(/{\\Large\s(.*?)}|\\Large\{(.*?)\}/gs, (_, g1, g2) => `<h3>${processContent(g1 || g2 || '')}</h3>`)
-        .replace(/{\\large\s(.*?)}|\\large\{(.*?)\}/gs, (_, g1, g2) => `<div class="text-lg font-semibold mb-1">${processContent(g1 || g2 || '')}</div>`)
-        .replace(/\\textbf\{(.*?)\}|{\\bf(.*?)}/gs, (_, g1, g2) => `<strong>${processContent(g1 || g2 || '')}</strong>`)
-        .replace(/\\textit\{(.*?)\}/gs, (_, inner) => `<em>${processContent(inner)}</em>`)
-        .replace(/\\underline\{(.*?)\}/gs, (_, inner) => `<span class="underline">${processContent(inner)}</span>`)
-        .replace(/\\small\{(.*?)\}/gs, (_, inner) => `<span class="text-sm">${processContent(inner)}</span>`)
-        .replace(/\\href\{([^}]*)\}\{([^}]*)\}/g, (_, url, linkText) => `<a href="${url.trim()}" target="_blank" rel="noopener noreferrer">${processContent(linkText)}</a>`);
+    // The order of these replacements is critical. We process in passes.
 
-    // Non-recursive replacements
-    return processedText
+    // Pass 1: Iteratively handle nested formatting commands. This is safer than recursion.
+    let processedText = text;
+    let changed = true;
+    while(changed) {
+        const originalText = processedText;
+        
+        processedText = processedText
+            // Handle links first as they are a common source of issues
+            .replace(/\\href\{([^}]*)\}\{([^}]*)\}/g, (_, url, linkText) => {
+                return `<a href="${url.trim()}" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
+            })
+            .replace(/{\\Huge\s(.*?)}|\\Huge\{(.*?)\}/gs, '<h1>$1$2</h1>')
+            .replace(/{\\LARGE\s(.*?)}|\\LARGE\{(.*?)\}/gs, '<h2>$1$2</h2>')
+            .replace(/{\\Large\s(.*?)}|\\Large\{(.*?)\}/gs, '<h3>$1$2</h3>')
+            .replace(/{\\large\s(.*?)}|\\large\{(.*?)\}/gs, '<div class="text-lg font-semibold mb-1">$1$2</div>')
+            .replace(/\\textbf\{(.*?)\}|{\\bf\s?(.*?)}/gs, '<strong>$1$2</strong>')
+            .replace(/\\textit\{(.*?)\}/gs, '<em>$1</em>')
+            .replace(/\\underline\{(.*?)\}/gs, '<span class="underline">$1</span>')
+            .replace(/\\small\{(.*?)\}/gs, '<span class="text-sm">$1</span>');
+        
+        changed = originalText !== processedText;
+    }
+    
+    // Pass 2: Handle escaped characters, symbols, and line breaks
+    processedText = processedText
         .replace(/\\itemsep\s*.*?\s*\{.*?\}/g, '') // Remove itemsep
-        .replace(/\\(tab|itab)\{.*?\}/g, '') // Remove custom tab commands
+        .replace(/\\(tab|itab)\{.*?\}/g, '')      // Remove custom tab commands
         .replace(/\\%/g, '%')
         .replace(/\\&/g, '&')
         .replace(/\\\$/g, '$')
@@ -45,7 +58,10 @@ function processContent(text: string): string {
         .replace(/\\qquad/g, '&emsp;&emsp;')
         .replace(/~/g, '&nbsp;')
         .replace(/\\ /g, ' '); // handle escaped space
+
+    return processedText;
 }
+
 
 function parseTabular(content: string, format: string): string {
     const hasBoldFirstCol = format.includes('>{\\bfseries}l') || format.includes('>{\\bf}l');
@@ -71,10 +87,9 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
 
     let html = latex.match(/\\begin\{document\}([\s\S]*)\\end\{document\}/)?.[1] || latex;
 
-    // --- Pre-processing for custom commands & typos ---
+    // --- Pre-processing for custom commands & header ---
     html = html.replace(/\\(\s*[\r\n])/g, '\\\\$1'); // Fix single backslash at EOL
 
-    // Custom header commands
     const nameMatch = latex.match(/\\name\{(.*?)\}/);
     const addressMatches = Array.from(latex.matchAll(/\\address\{(.*?)\}/g));
     
@@ -88,7 +103,7 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
             html = html.replace(match[0], '');
             return processContent(match[1]);
         }).join('<br />');
-        headerHtml += `<div>${processedAddresses}</div>`;
+        headerHtml += `<div class="text-center">${processedAddresses}</div>`;
     }
     if (headerHtml) {
         headerHtml += '</div>';
@@ -103,7 +118,6 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
     html = html.replace(/\\(name|address)\{.*?\}/g, '');
     html = html.replace(/\\vspace\*?(?:\[.*?\])?\{.*?\}/g, '');
     html = html.replace(/\\maketitle/g, '');
-    html = html.replace(/\\itemsep\s*.*?\s*\{.*?\}/g, '');
 
     // Handle custom rSection environment
     html = html.replace(/\\begin\{rSection\}\s*\{(.*?)\}([\s\S]*?)\\end\{rSection\}/g, (fullMatch, title, content) => {
@@ -158,32 +172,24 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
             return part; // It's already an HTML block, so leave it.
         }
 
-        // Process remaining raw text
+        // Process remaining raw text paragraphs
         return part
             .trim()
             .split(/\n\s*\n/) // Split by blank lines
             .filter(p => p.trim())
             .map(paragraph => {
-                const lines = paragraph.trim().split('\n');
+                let processedParagraph = paragraph;
                 
-                // Check for lines with \hfill for special flexbox layout
-                const isFlexLayout = lines.some(l => l.includes('\\hfill'));
+                const isFlexLayout = processedParagraph.includes('\\hfill');
                 if (isFlexLayout) {
-                    return lines.map(line => {
-                        let trimmedLine = line.trim();
-                        if (trimmedLine) {
-                            // Remove trailing \\ to prevent extra <br>
-                            trimmedLine = trimmedLine.replace(/\\\\(?:\[.*?\])?\s*$/, '');
-                            const segments = trimmedLine.split(/\\hfill/g).map(s => `<span>${processContent(s.trim())}</span>`);
-                            return `<div class="flex-container">${segments.join('')}</div>`;
-                        }
-                        return '';
-                    }).join('');
+                    const segments = processedParagraph.split(/\\hfill/g).map(s => {
+                        const cleanSegment = s.trim().replace(/\\\\(?:\[.*?\])?\s*$/, '');
+                        return `<span>${processContent(cleanSegment)}</span>`
+                    });
+                    return `<div class="flex-container">${segments.join('')}</div>`;
                 }
                 
-                // Otherwise, treat as a single paragraph
-                const singleLineParagraph = lines.join(' ');
-                return `<p>${processContent(singleLineParagraph)}</p>`;
+                return `<p>${processContent(processedParagraph)}</p>`;
             })
             .join('');
     }).join('');
