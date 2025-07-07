@@ -1,3 +1,4 @@
+
 'use server';
 
 import { z } from 'zod';
@@ -79,7 +80,7 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
     html = html.replace(/\\section\*?(?:\[.*?\])?\{(.*?)\}/gs, (_, inner) => `<h2>${processInlineCommands(inner)}</h2>`);
     html = html.replace(/\\hline/g, '<hr />');
     
-    const blockRegex = /(<(?:div|ul|ol|h[1-6]|hr|a)[^>]*>[\s\S]*?<\/(?:div|ul|ol|h[1-6]|a)>|<(hr|br)\s*\/?>)/i;
+    const blockRegex = /(<(?:div|ul|ol|h[1-6]|hr|a)[^>]*>[\s\S]*?<\/(?:div|ul|ol|h[1-6]|a)>|<hr\s*\/?>)/i;
     const parts = html.split(blockRegex).filter(Boolean);
     
     html = parts.map(part => {
