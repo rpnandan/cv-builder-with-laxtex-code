@@ -76,12 +76,12 @@ function parseTabular(content: string, format: string): string {
 
 function simpleLatexToHtml(latex: string, templateName?: string): string {
     // Remove LaTeX comments, but preserve escaped percents \%
-    latex = latex.replace(/(?<!\\)%.*$/gm, '');
+    let fullContent = latex.replace(/(?<!\\)%.*$/gm, '');
 
     // --- Pass 1: Pre-process \href commands on the entire string to avoid parsing issues ---
     const hrefMap = new Map<string, string>();
     let hrefIndex = 0;
-    let fullContent = latex.replace(/\\href\{([^}]*)\}\{([^}]*)\}/g, (_, url, linkText) => {
+    fullContent = fullContent.replace(/\\href\{([^}]*)\}\{([^}]*)\}/g, (_, url, linkText) => {
         const placeholder = `___HREF_PLACEHOLDER_${hrefIndex++}___`;
         // The link text itself might have formatting, so process it.
         const anchorTag = `<a href="${url.trim()}" target="_blank" rel="noopener noreferrer">${processContent(linkText)}</a>`;
@@ -130,17 +130,25 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
     while (changed) {
         const originalHtml = html;
         html = html.replace(/\\begin\{itemize\}(?:\[.*?\])?((?:(?!\\begin\{itemize\}|\\end\{itemize\})[\s\S])*?)\\end\{itemize\}/gs, (_, inner) => {
-            const items = inner.split(/\\item(?![a-z])/).filter(s => s.trim()).map(item => {
+            const items = inner.split(/\\item(?![a-z])/)
+            .map(item => {
                 const cleanItem = item.trim().replace(/^\[.*?\]\s*/, '');
-                return `<li>${processContent(cleanItem)}</li>`;
-            }).join('');
+                return processContent(cleanItem);
+            })
+            .filter(processedItem => processedItem.trim())
+            .map(filteredItem => `<li>${filteredItem}</li>`)
+            .join('');
             return `<ul>${items}</ul>`;
         });
         html = html.replace(/\\begin\{enumerate\}(?:\[.*?\])?((?:(?!\\begin\{enumerate\}|\\end\{enumerate\})[\s\S])*?)\\end\{enumerate\}/gs, (_, inner) => {
-            const items = inner.split(/\\item(?![a-z])/).filter(s => s.trim()).map(item => {
+             const items = inner.split(/\\item(?![a-z])/)
+            .map(item => {
                 const cleanItem = item.trim().replace(/^\[.*?\]\s*/, '');
-                return `<li>${processContent(cleanItem)}</li>`;
-            }).join('');
+                return processContent(cleanItem);
+            })
+            .filter(processedItem => processedItem.trim())
+            .map(filteredItem => `<li>${filteredItem}</li>`)
+            .join('');
             return `<ol>${items}</ol>`;
         });
         html = html.replace(/\\begin\{tabular\}\s*\{(.+?)\}([\s\S]*?)\\end\{tabular\}/gs, (_, format, content) => {
@@ -164,7 +172,7 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
     html = html.replace(/\\section\*?(?:\[.*?\])?\{(.*?)\}/gs, (_, inner) => `<h2 class="r-section-title">${processContent(inner)}</h2>`);
     html = html.replace(/\\hline/g, '<hr />');
     
-    // Split remaining content into paragraphs based on blank lines
+    // Split remaining content into logical blocks (HTML or raw text)
     const blockRegex = /(<(?:div|ul|ol|h[1-6]|hr|a|table)[^>]*>[\s\S]*?<\/(?:div|ul|ol|h[1-6]|a|table)>|<hr\s*\/?>)/i;
     const parts = html.split(blockRegex).filter(Boolean);
     
@@ -173,26 +181,33 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
             return part; // It's already an HTML block, so leave it.
         }
 
-        // Process remaining raw text paragraphs
-        return part
-            .trim()
-            .split(/\n\s*\n/) // Split by blank lines
-            .filter(p => p.trim())
-            .map(paragraph => {
-                let processedParagraph = paragraph;
-                
-                const isFlexLayout = processedParagraph.includes('\\hfill');
-                if (isFlexLayout) {
-                    const segments = processedParagraph.split(/\\hfill/g).map(s => {
-                        const cleanSegment = s.trim().replace(/\\\\(?:\[.*?\])?\s*$/, '');
-                        return `<span>${processContent(cleanSegment)}</span>`
-                    });
-                    return `<div class="flex-container">${segments.join('')}</div>`;
-                }
-                
-                return `<p>${processContent(processedParagraph)}</p>`;
-            })
-            .join('');
+        // Process remaining raw text by handling paragraphs and flex layouts
+        const lines = part.trim().split('\n').filter(l => l.trim());
+        let resultHtml = '';
+        let paragraphBuffer: string[] = [];
+
+        const flushBuffer = () => {
+            if (paragraphBuffer.length > 0) {
+                // Join with \\ to let processContent handle line breaks correctly.
+                resultHtml += `<p>${processContent(paragraphBuffer.join('\\\\ '))}</p>`;
+                paragraphBuffer = [];
+            }
+        };
+
+        for (const line of lines) {
+            if (line.includes('\\hfill')) {
+                flushBuffer(); // End the current paragraph
+                const segments = line.split(/\\hfill/g).map(s => {
+                    const cleanSegment = s.trim().replace(/\\\\(?:\[.*?\])?\s*$/, '');
+                    return `<span>${processContent(cleanSegment)}</span>`;
+                });
+                resultHtml += `<div class="flex-container">${segments.join('')}</div>`;
+            } else {
+                paragraphBuffer.push(line);
+            }
+        }
+        flushBuffer(); // Flush any remaining lines
+        return resultHtml;
     }).join('');
 
     // Final cleanups
@@ -209,6 +224,7 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
     const templateClassName = templateName ? `template-${templateName.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}` : 'template-classic-professional';
     return `<div class="non-ai-rendered ${templateClassName} p-8 md:p-12 font-body bg-card text-card-foreground h-full">${finalHtmlResult}</div>`;
 }
+
 
 export async function generateResumeAction(
   input: LatexResumeRenderingInput
