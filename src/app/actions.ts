@@ -26,7 +26,7 @@ function processContent(text: string): string {
         .replace(/\\textit\{(.*?)\}/gs, (_, inner) => `<em>${processContent(inner)}</em>`)
         .replace(/\\underline\{(.*?)\}/gs, (_, inner) => `<span class="underline">${processContent(inner)}</span>`)
         .replace(/\\small\{(.*?)\}/gs, (_, inner) => `<span class="text-sm">${processContent(inner)}</span>`)
-        .replace(/\\href\{(.*?)\}\{(.*?)\}/gs, (_, url, linkText) => `<a href="${url.trim()}" target="_blank" rel="noopener noreferrer">${processContent(linkText)}</a>`);
+        .replace(/\\href\{([^}]*)\}\{([^}]*)\}/g, (_, url, linkText) => `<a href="${url.trim()}" target="_blank" rel="noopener noreferrer">${processContent(linkText)}</a>`);
 
     // Non-recursive replacements
     return processedText
