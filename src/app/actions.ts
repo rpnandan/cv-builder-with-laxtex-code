@@ -83,8 +83,7 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
     let hrefIndex = 0;
     fullContent = fullContent.replace(/\\href\{([^}]*)\}\{([^}]*)\}/g, (_, url, linkText) => {
         const placeholder = `___HREF_PLACEHOLDER_${hrefIndex++}___`;
-        // The link text itself might have formatting, so process it.
-        const anchorTag = `<a href="${url.trim()}" target="_blank" rel="noopener noreferrer">${processContent(linkText)}</a>`;
+        const anchorTag = `<a href="${url.trim()}" target="_blank" rel="noopener noreferrer">${processContent(linkText.trim())}</a>`;
         hrefMap.set(placeholder, anchorTag);
         return placeholder;
     });
@@ -151,7 +150,7 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
             .join('');
             return `<ol>${items}</ol>`;
         });
-        html = html.replace(/\\begin\{tabular\}\s*\{((?:[^{}]|\{[^}]*\})+)\}([\s\S]*?)\\end\{tabular\}/gs, (_, format, content) => {
+        html = html.replace(/\\begin\{tabular\}\s*\{(.+?)\}([\s\S]*?)\\end\{tabular\}/gs, (_, format, content) => {
             return parseTabular(content, format);
         });
         changed = originalHtml !== html;
