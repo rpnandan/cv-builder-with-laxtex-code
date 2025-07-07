@@ -150,7 +150,7 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
             .join('');
             return `<ol>${items}</ol>`;
         });
-        html = html.replace(/\\begin\{tabular\}\s*\{(.+?)\}([\s\S]*?)\\end\{tabular\}/gs, (_, format, content) => {
+        html = html.replace(/\\begin\{tabular\}\s*\{(.*)\}([\s\S]*?)\\end\{tabular\}/gs, (_, format, content) => {
             return parseTabular(content, format);
         });
         changed = originalHtml !== html;
