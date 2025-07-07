@@ -103,6 +103,7 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
     html = html.replace(/\\(name|address)\{.*?\}/g, '');
     html = html.replace(/\\vspace\*?(?:\[.*?\])?\{.*?\}/g, '');
     html = html.replace(/\\maketitle/g, '');
+    html = html.replace(/\\itemsep\s*.*?\s*\{.*?\}/g, '');
 
     // Handle custom rSection environment
     html = html.replace(/\\begin\{rSection\}\s*\{(.*?)\}([\s\S]*?)\\end\{rSection\}/g, (fullMatch, title, content) => {
@@ -169,8 +170,11 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
                 const isFlexLayout = lines.some(l => l.includes('\\hfill'));
                 if (isFlexLayout) {
                     return lines.map(line => {
-                        if (line.trim()) {
-                            const segments = line.split(/\\hfill/g).map(s => `<span>${processContent(s.trim())}</span>`);
+                        let trimmedLine = line.trim();
+                        if (trimmedLine) {
+                            // Remove trailing \\ to prevent extra <br>
+                            trimmedLine = trimmedLine.replace(/\\\\(?:\[.*?\])?\s*$/, '');
+                            const segments = trimmedLine.split(/\\hfill/g).map(s => `<span>${processContent(s.trim())}</span>`);
                             return `<div class="flex-container">${segments.join('')}</div>`;
                         }
                         return '';
