@@ -28,7 +28,7 @@ function simpleLatexToHtml(latex: string): string {
             .replace(/\\\\/g, '<br />')
             .replace(/\\quad/g, '&emsp;')
             .replace(/\\qquad/g, '&emsp;&emsp;')
-            .replace(/\\vspace\*?\{.*?\}/g, '');
+            .replace(/\\vspace\*?(?:\[.*?\])?(?:\{.*?\})?/g, '');
 
         return processedText;
     }
@@ -36,19 +36,25 @@ function simpleLatexToHtml(latex: string): string {
     let html = latex.match(/\\begin\{document\}([\s\S]*)\\end\{document\}/)?.[1] || latex;
 
     html = html.replace(/\\documentclass(?:\[.*?\])?\{.*?\}/g, '');
-    html = html.replace(/\\usepackage\{.*?\}/g, '');
-    html = html.replace(/\\geometry\{.*?\}/g, '');
+    html = html.replace(/\\usepackage(?:\[.*?\])?\{.*?\}/g, '');
+    html = html.replace(/\\geometry(?:\[.*?\])?\{.*?\}/g, '');
     html = html.replace(/\\hypersetup\{[\s\S]*?\}/gs, '');
 
     let changed = true;
     while (changed) {
         const originalHtml = html;
         html = html.replace(/\\begin\{itemize\}(?:\[.*?\])?((?:(?!\\begin\{itemize\}|\\end\{itemize\})[\s\S])*?)\\end\{itemize\}/gs, (_, inner) => {
-            const items = inner.split(/\\item(?![a-z])/).filter(s => s.trim()).map(item => `<li class="pb-1">${processInlineCommands(item.trim())}</li>`).join('');
+            const items = inner.split(/\\item(?![a-z])/).filter(s => s.trim()).map(item => {
+                const cleanItem = item.trim().replace(/^\[.*?\]\s*/, '');
+                return `<li class="pb-1">${processInlineCommands(cleanItem)}</li>`;
+            }).join('');
             return `<ul class="list-disc list-outside pl-5 space-y-1">${items}</ul>`;
         });
         html = html.replace(/\\begin\{enumerate\}(?:\[.*?\])?((?:(?!\\begin\{enumerate\}|\\end\{enumerate\})[\s\S])*?)\\end\{enumerate\}/gs, (_, inner) => {
-            const items = inner.split(/\\item(?![a-z])/).filter(s => s.trim()).map(item => `<li class="pb-1">${processInlineCommands(item.trim())}</li>`).join('');
+            const items = inner.split(/\\item(?![a-z])/).filter(s => s.trim()).map(item => {
+                const cleanItem = item.trim().replace(/^\[.*?\]\s*/, '');
+                return `<li class="pb-1">${processInlineCommands(cleanItem)}</li>`;
+            }).join('');
             return `<ol class="list-decimal list-outside pl-5 space-y-1">${items}</ol>`;
         });
         changed = originalHtml !== html;
@@ -61,7 +67,7 @@ function simpleLatexToHtml(latex: string): string {
     html = html.replace(/{\\Large\s(.*?)}|\\Large\{(.*?)\}/gs, (_, g1, g2) => `<h3 class="text-2xl font-headline font-semibold mb-1">${processInlineCommands(g1 || g2 || '')}</h3>`);
     html = html.replace(/{\\large\s(.*?)}|\\large\{(.*?)\}/gs, (_, g1, g2) => `<div class="text-lg font-semibold mb-1">${processInlineCommands(g1 || g2 || '')}</div>`);
     
-    html = html.replace(/\\section\*\{(.*?)\}/gs, (_, inner) => `<h2 class="text-xl font-headline font-semibold text-primary mt-6 mb-3 border-b-2 border-primary/20 pb-2">${processInlineCommands(inner)}</h2>`);
+    html = html.replace(/\\section\*?(?:\[.*?\])?\{(.*?)\}/gs, (_, inner) => `<h2 class="text-xl font-headline font-semibold text-primary mt-6 mb-3 border-b-2 border-primary/20 pb-2">${processInlineCommands(inner)}</h2>`);
     html = html.replace(/\\hline/g, '<hr class="my-4 border-border" />');
     
     html = html.replace(/\\item/g, '');
