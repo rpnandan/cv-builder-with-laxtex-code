@@ -82,7 +82,6 @@
       display: none;
     }
     
-    /* Ensure scroll areas don't clip content during print */
     [data-radix-scroll-area-root], [data-radix-scroll-area-viewport] {
         overflow: visible !important;
     }
@@ -118,5 +117,76 @@
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
+  }
+
+  /* --- Resume Template Styles --- */
+
+  /* Base styles applied to all templates via the .non-ai-rendered class */
+  .non-ai-rendered h2 {
+      @apply text-xl font-headline font-semibold text-primary mt-6 mb-3 border-b-2 border-primary/20 pb-2;
+  }
+  .non-ai-rendered h1 {
+      @apply text-4xl font-headline font-bold tracking-tight mb-2;
+  }
+  .non-ai-rendered h3 {
+      @apply text-2xl font-headline font-semibold mb-1;
+  }
+  .non-ai-rendered strong {
+      @apply font-semibold;
+  }
+  .non-ai-rendered ul {
+      @apply list-disc list-outside pl-5 space-y-1 mb-4;
+  }
+  .non-ai-rendered ol {
+      @apply list-decimal list-outside pl-5 space-y-1 mb-4;
+  }
+  .non-ai-rendered a {
+      @apply text-primary hover:underline;
+  }
+  .non-ai-rendered hr {
+      @apply my-4 border-border;
+  }
+  .non-ai-rendered .flex-container { /* from \hfill */
+      @apply flex items-baseline justify-between w-full;
+  }
+  .non-ai-rendered p {
+      @apply leading-relaxed mb-2;
+  }
+  .non-ai-rendered li {
+      @apply pb-1;
+  }
+
+  /* --- Template Specific Overrides --- */
+
+  /* Classic Professional is the default, uses base styles */
+  .template-classic-professional {
+      /* No overrides needed, this is the base theme */
+  }
+
+  /* Modern Minimalist Template */
+  .template-modern-minimalist h2 {
+      @apply text-sm font-bold uppercase tracking-widest text-muted-foreground mt-8 mb-4 border-b border-border pb-2;
+  }
+  .template-modern-minimalist h1, .template-modern-minimalist h3 {
+      @apply font-headline;
+  }
+  .template-modern-minimalist strong {
+      @apply font-bold text-foreground;
+  }
+  .template-modern-minimalist ul {
+      list-style-type: '— ';
+      @apply pl-2;
+  }
+
+  /* Tech Professional Template */
+  .template-tech-professional {
+      --primary: 210 100% 56%; /* A more "techy" blue */
+      --primary-foreground: 210 40% 98%;
+  }
+  .template-tech-professional h2 {
+      @apply border-primary/50 font-bold;
+  }
+  .template-tech-professional strong {
+      @apply text-primary;
   }
 }
