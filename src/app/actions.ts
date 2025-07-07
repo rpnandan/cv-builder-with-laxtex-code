@@ -63,8 +63,12 @@ function parseTabular(content: string, format: string): string {
     const tableRows = rows.map(row => {
         const cells = row.split('&').map((cell, index) => {
             let cellContent = processContent(cell.trim());
-            if (hasBoldFirstCol && index === 0) {
-                return `<td class="font-bold">${cellContent}</td>`;
+            if (index === 0) {
+                const boldClass = hasBoldFirstCol ? 'font-bold' : '';
+                // The user's format string has an \hspace after the first column.
+                // We simulate this with extra padding on the right of the first cell.
+                // We also prevent the first column from wrapping to look cleaner.
+                return `<td class="${boldClass} pr-12 whitespace-nowrap">${cellContent}</td>`;
             }
             return `<td>${cellContent}</td>`;
         }).join('');
