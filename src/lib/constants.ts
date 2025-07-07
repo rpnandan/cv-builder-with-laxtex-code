@@ -28,7 +28,7 @@ export const DEFAULT_LATEX_CODE = `\\documentclass[a4paper,11pt]{article}
 \\end{center}
 
 \\section*{Summary}
-Highly motivated and results-oriented Software Engineer with 5+ years of experience in developing, testing, and deploying robust software solutions. Proficient in various programming languages and technologies, with a strong foundation in data structures and algorithms. Seeking to leverage my skills to contribute to a challenging and innovative development environment.
+Highly motivated and \\textit{results-oriented} Software Engineer with 5+ years of experience in developing, testing, and deploying robust software solutions. Proficient in various programming languages and technologies, with a strong foundation in data structures and algorithms. Seeking to leverage my skills to contribute to a challenging and innovative development environment.
 
 \\section*{Experience}
 \\begin{itemize}[leftmargin=*]
@@ -46,19 +46,26 @@ Highly motivated and results-oriented Software Engineer with 5+ years of experie
     \\end{itemize}
 \\end{itemize}
 
-\\section*{Education}
+\\section*{Projects}
+\\large{\\textbf{Project Titan}} \\quad \\small{\\textit{Next-Gen Data Pipeline}}
 \\begin{itemize}[leftmargin=*]
-    \item \\textbf{M.S. in Computer Science}, University of Technology | 2016 - 2018
-    \item \\textbf{B.S. in Computer Science}, State University | 2012 - 2016
+    \\item Developed a scalable data processing pipeline using Apache Kafka and Spark.
+    \\item Reduced data processing time by 50% and improved data accuracy.
 \\end{itemize}
 
-\\section*{Skills}
+\\section*{Education}
 \\begin{itemize}[leftmargin=*]
+    \\item \\textbf{M.S. in Computer Science}, University of Technology | 2016 - 2018
+    \\item \\textbf{B.S. in Computer Science}, State University | 2012 - 2016
+\\end{itemize}
+
+\\section*{Technical Skills}
+\\begin{enumerate}[leftmargin=*]
     \\item \\textbf{Programming Languages:} Java, Python, JavaScript, TypeScript, Go
     \\item \\textbf{Frameworks:} Spring Boot, Django, React, Node.js
     \\item \\textbf{Databases:} PostgreSQL, MongoDB, Redis
     \\item \\textbf{Tools:} Docker, Kubernetes, Jenkins, Git, AWS
-\\end{itemize}
+\\end{enumerate}
 
 \\end{document}
 `;
