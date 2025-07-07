@@ -78,13 +78,10 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
     // Remove LaTeX comments, but preserve escaped percents \%
     latex = latex.replace(/(?<!\\)%.*$/gm, '');
 
-    let html = latex.match(/\\begin\{document\}([\s\S]*)\\end\{document\}/)?.[1] || latex;
-
-    // --- Pass 1: Pre-process \href commands to avoid parsing issues with other commands ---
+    // --- Pass 1: Pre-process \href commands on the entire string to avoid parsing issues ---
     const hrefMap = new Map<string, string>();
     let hrefIndex = 0;
-    // Replace all \href commands with a unique, safe placeholder.
-    html = html.replace(/\\href\{([^}]*)\}\{([^}]*)\}/g, (_, url, linkText) => {
+    let fullContent = latex.replace(/\\href\{([^}]*)\}\{([^}]*)\}/g, (_, url, linkText) => {
         const placeholder = `___HREF_PLACEHOLDER_${hrefIndex++}___`;
         // The link text itself might have formatting, so process it.
         const anchorTag = `<a href="${url.trim()}" target="_blank" rel="noopener noreferrer">${processContent(linkText)}</a>`;
@@ -92,20 +89,16 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
         return placeholder;
     });
 
-    // --- Pass 2: Process document structure (header, sections, etc.) ---
-    html = html.replace(/\\(\s*[\r\n])/g, '\\\\$1');
-
-    const nameMatch = html.match(/\\name\{(.*?)\}/);
-    const addressMatches = Array.from(html.matchAll(/\\address\{(.*?)\}/g));
+    // --- Pass 2: Process document structure (header) from the full string ---
+    const nameMatch = fullContent.match(/\\name\{(.*?)\}/);
+    const addressMatches = Array.from(fullContent.matchAll(/\\address\{(.*?)\}/g));
     
     let headerHtml = '';
     if (nameMatch) {
         headerHtml += `<div class="text-center mb-4"><h1>${processContent(nameMatch[1])}</h1>`;
-        html = html.replace(/\\name\{(.*?)\}/, '');
     }
     if (addressMatches.length > 0) {
         const processedAddresses = addressMatches.map(match => {
-            html = html.replace(match[0], '');
             return processContent(match[1]);
         }).join('<br />');
         headerHtml += `<div class="text-center">${processedAddresses}</div>`;
@@ -114,6 +107,9 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
         headerHtml += '</div>';
     }
     
+    // Now, extract the body from the content that has href placeholders
+    let html = fullContent.match(/\\begin\{document\}([\s\S]*)\\end\{document\}/)?.[1] || fullContent;
+
     // Cleanup preamble commands that might be inside the document body
     html = html.replace(/\\documentclass(?:\[.*?\])?\{.*?\}/g, '');
     html = html.replace(/\\usepackage(?:\[.*?\])?\{.*?\}/g, '');
