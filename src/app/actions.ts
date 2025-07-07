@@ -101,17 +101,18 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
     const addressMatches = Array.from(fullContent.matchAll(/\\address\{(.*?)\}/g));
     
     let headerHtml = '';
-    if (nameMatch) {
-        headerHtml += `<div class="text-center mb-4"><h1>${processContent(nameMatch[1])}</h1>`;
-    }
-    if (addressMatches.length > 0) {
-        const processedAddresses = addressMatches.map(match => {
-            return processContent(match[1]);
-        }).join('<br />');
-        headerHtml += `<div class="text-center">${processedAddresses}</div>`;
-    }
-    if (headerHtml) {
-        headerHtml += '</div>';
+    if (nameMatch || addressMatches.length > 0) {
+        let headerContent = '';
+        if (nameMatch) {
+            headerContent += `<h1>${processContent(nameMatch[1])}</h1>`;
+        }
+        if (addressMatches.length > 0) {
+            const processedAddresses = addressMatches.map(match => {
+                return processContent(match[1]);
+            }).join('<br />');
+            headerContent += `<div>${processedAddresses}</div>`;
+        }
+        headerHtml = `<div class="resume-header text-center">${headerContent}</div>`;
     }
     
     // Now, extract the body from the content that has href placeholders

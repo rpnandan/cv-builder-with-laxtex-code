@@ -122,14 +122,20 @@
   /* --- Resume Template Styles --- */
 
   /* Base styles applied to all templates via the .non-ai-rendered class */
+  .non-ai-rendered {
+    @apply font-body text-base;
+  }
+  .non-ai-rendered h1, .non-ai-rendered h2, .non-ai-rendered h3 {
+    @apply font-headline;
+  }
   .non-ai-rendered h2.r-section-title {
-      @apply text-xl font-headline font-semibold text-primary mt-4 mb-2 border-b-2 border-primary/20 pb-1;
+      @apply text-xl font-semibold text-primary mt-4 mb-2 border-b-2 border-primary/20 pb-1;
   }
   .non-ai-rendered h1 {
-      @apply text-4xl font-headline font-bold tracking-tight mb-2;
+      @apply text-4xl font-bold tracking-tight mb-2;
   }
   .non-ai-rendered h3 {
-      @apply text-2xl font-headline font-semibold mb-1;
+      @apply text-2xl font-semibold mb-1;
   }
   .non-ai-rendered strong {
       @apply font-semibold;
@@ -158,6 +164,9 @@
   .non-ai-rendered table td {
       @apply py-1 pr-4;
   }
+  .non-ai-rendered .resume-header {
+    @apply mb-6;
+  }
 
 
   /* --- Template Specific Overrides --- */
@@ -168,51 +177,68 @@
   }
 
   /* Modern Minimalist Template */
+  .template-modern-minimalist {
+    --primary: 217 91% 60%; /* A modern, friendly blue */
+    @apply font-body;
+  }
+  .template-modern-minimalist h1 {
+    @apply text-3xl font-semibold text-foreground tracking-normal mb-1;
+  }
+  .template-modern-minimalist .resume-header {
+    @apply text-left border-b border-border pb-6;
+  }
   .template-modern-minimalist h2.r-section-title {
-      @apply text-sm font-bold uppercase tracking-widest text-muted-foreground mt-8 mb-4 border-b border-border pb-2;
-  }
-  .template-modern-minimalist h1, .template-modern-minimalist h3 {
-      @apply font-headline;
-  }
-  .template-modern-minimalist strong {
-      @apply font-bold text-foreground;
+    @apply text-sm font-bold uppercase tracking-widest text-muted-foreground mt-6 mb-3 border-none;
   }
   .template-modern-minimalist ul {
-      list-style-type: '— ';
-      @apply pl-2;
+    list-style-type: '—  ';
+    @apply pl-2 space-y-2;
   }
 
   /* Tech Professional Template */
   .template-tech-professional {
       --primary: 210 100% 56%; /* A more "techy" blue */
       --primary-foreground: 210 40% 98%;
+      @apply font-code text-[15px];
+  }
+  .template-tech-professional h1, .template-tech-professional h2, .template-tech-professional h3 {
+    @apply font-headline;
+  }
+  .template-tech-professional h1 {
+    @apply text-primary;
   }
   .template-tech-professional h2.r-section-title {
-      @apply border-primary/50 font-bold;
+    @apply text-primary/80 border-primary/50 text-lg font-bold;
+  }
+  .template-tech-professional a {
+    @apply text-primary/90;
   }
   .template-tech-professional strong {
-      @apply text-primary;
+      @apply font-bold text-foreground;
   }
 
   /* Academic CV Template */
   .template-academic-cv {
     --primary: 220 10% 40%; /* A more muted, professional dark slate gray */
-    @apply font-body;
+    @apply text-[11pt] leading-snug;
   }
   .template-academic-cv h1 {
-    @apply text-3xl font-bold text-center tracking-normal normal-case mb-4;
+    @apply text-3xl font-bold text-center tracking-normal normal-case mb-1;
   }
-  .template-academic-cv .text-center {
-    @apply text-sm;
+  .template-academic-cv .resume-header {
+    @apply text-sm mb-4;
   }
   .template-academic-cv h2.r-section-title {
-    @apply text-base font-bold uppercase tracking-widest text-foreground mt-6 mb-3 border-b-2 border-border pb-1;
+    @apply text-base font-bold uppercase tracking-wider text-foreground mt-5 mb-2 border-b-2 border-border pb-1 text-center;
   }
   .template-academic-cv ul {
     @apply list-none pl-2;
   }
   .template-academic-cv li {
     @apply pl-4 relative before:content-['•'] before:absolute before:left-0 before:text-primary;
+  }
+  .template-academic-cv .flex-container {
+    @apply font-medium;
   }
 
   /* Simple & Clean Template */
@@ -229,19 +255,26 @@
       @apply pl-4 relative before:content-['-'] before:absolute before:left-0 before:text-muted-foreground;
   }
   .template-simple-clean hr {
-      @apply hidden;
+      @apply my-2;
   }
 
   /* Executive Suite Template */
   .template-executive-suite {
       --primary: 200 20% 30%; /* Dark, desaturated cyan */
       --border: 200 20% 80%;
+      @apply text-[12pt];
+  }
+  .template-executive-suite .resume-header {
+    @apply border-b-4 border-primary pb-4 mb-8;
   }
   .template-executive-suite h1 {
-      @apply text-5xl font-normal uppercase tracking-widest text-center;
+      @apply text-5xl font-light uppercase tracking-[0.2em] text-center;
   }
   .template-executive-suite h2.r-section-title {
-      @apply text-xl font-normal text-primary tracking-wider uppercase mt-8 mb-3 border-b-4 border-primary/30 pb-2;
+      @apply text-base font-bold text-primary tracking-widest uppercase mt-8 mb-3 border-none pb-0;
+  }
+  .template-executive-suite strong {
+    @apply font-black;
   }
 
   /* Bold Typography Template */
@@ -249,15 +282,48 @@
     --primary: 16 100% 50%; /* A strong orange */
   }
   .template-bold-typography h1, .template-bold-typography h2.r-section-title, .template-bold-typography strong {
-    @apply font-bold;
+    @apply font-black;
   }
   .template-bold-typography h1 {
     @apply text-5xl tracking-tighter;
   }
   .template-bold-typography h2.r-section-title {
-    @apply text-2xl tracking-tight border-b-4 border-primary pb-2;
+    @apply text-2xl tracking-tight border-b-4 border-primary pb-2 text-primary;
   }
   .template-bold-typography ul {
     list-style-type: square;
+    @apply text-[15px];
+  }
+
+  /* Two-Tone Template */
+  .template-two-tone {
+    --primary: 345 90% 55%; /* A nice magenta/rose */
+  }
+  .template-two-tone .resume-header {
+    @apply bg-primary/10 p-8 m-0 -mx-12 -mt-12 mb-8;
+  }
+  .template-two-tone h1 {
+    @apply text-primary;
+  }
+  .template-two-tone h2.r-section-title {
+    @apply border-primary/50;
+  }
+
+  /* Infographic Style Template */
+  .template-infographic-style {
+    --primary: 150 70% 40%; /* A vibrant sea green */
+  }
+  .template-infographic-style .r-section-title {
+    @apply bg-primary text-primary-foreground rounded-full px-4 py-1 text-center border-none text-lg;
+  }
+  .template-infographic-style ul {
+    @apply list-none pl-0;
+  }
+  .template-infographic-style li {
+    @apply bg-muted/50 rounded-md p-3 mb-2 flex items-start gap-3;
+  }
+  .template-infographic-style li::before {
+    content: '✓';
+    @apply bg-primary text-primary-foreground rounded-full size-6 text-center font-bold leading-6 flex-shrink-0;
   }
 }
