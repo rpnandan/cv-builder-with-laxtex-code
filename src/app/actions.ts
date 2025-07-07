@@ -61,16 +61,15 @@ function parseTabular(content: string, format: string): string {
     const rows = content.trim().split(/\\\\\s*/).filter(r => r.trim());
 
     const tableRows = rows.map(row => {
-        const separatorIndex = row.indexOf('&');
-        const cells = separatorIndex === -1
-            ? [row]
-            : [row.substring(0, separatorIndex), row.substring(separatorIndex + 1)];
+        const cells = row.split('&').map(c => c.trim());
 
         const renderedCells = cells.map((cell, index) => {
             let cellContent = processContent(cell.trim());
             if (index === 0) {
                 const boldClass = hasBoldFirstCol ? 'font-bold' : '';
-                return `<td class="${boldClass} pr-12 whitespace-nowrap">${cellContent}</td>`;
+                 // Add extra padding to simulate \hspace{6ex} from the format string
+                const paddingClass = format.includes('hspace{6ex}') ? 'pr-12' : 'pr-4';
+                return `<td class="${boldClass} ${paddingClass} whitespace-nowrap">${cellContent}</td>`;
             }
             return `<td>${cellContent}</td>`;
         }).join('');
@@ -193,8 +192,9 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
 
         const flushBuffer = () => {
             if (paragraphBuffer.length > 0) {
-                // Join with \\ to let processContent handle line breaks correctly.
-                resultHtml += `<p>${processContent(paragraphBuffer.join('\\\\ '))}</p>`;
+                // Join with a simple space. Let the `\\` in the original
+                // text dictate the line breaks.
+                resultHtml += `<p>${processContent(paragraphBuffer.join(' '))}</p>`;
                 paragraphBuffer = [];
             }
         };
