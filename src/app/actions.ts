@@ -43,7 +43,8 @@ function processContent(text: string): string {
         .replace(/\\\\(?:\[.*?\])?/g, '<br />')
         .replace(/\\quad/g, '&emsp;')
         .replace(/\\qquad/g, '&emsp;&emsp;')
-        .replace(/~/g, '&nbsp;');
+        .replace(/~/g, '&nbsp;')
+        .replace(/\\ /g, ' '); // handle escaped space
 }
 
 function parseTabular(content: string, format: string): string {
@@ -67,8 +68,9 @@ function parseTabular(content: string, format: string): string {
 function simpleLatexToHtml(latex: string, templateName?: string): string {
     let html = latex.match(/\\begin\{document\}([\s\S]*)\\end\{document\}/)?.[1] || latex;
 
-    // --- Pre-processing for custom commands ---
-    
+    // --- Pre-processing for custom commands & typos ---
+    html = html.replace(/\\(\s*[\r\n])/g, '\\\\$1'); // Fix single backslash at EOL
+
     // Custom header commands
     const nameMatch = latex.match(/\\name\{(.*?)\}/);
     const addressMatches = Array.from(latex.matchAll(/\\address\{(.*?)\}/g));
@@ -79,20 +81,17 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
         html = html.replace(/\\name\{(.*?)\}/, '');
     }
     if (addressMatches.length > 0) {
-        addressMatches.forEach(match => {
-            headerHtml += `<div>${processContent(match[1])}</div>`;
+        const processedAddresses = addressMatches.map(match => {
             html = html.replace(match[0], '');
-        });
+            return processContent(match[1]);
+        }).join('<br />');
+        headerHtml += `<div>${processedAddresses}</div>`;
     }
     if (headerHtml) {
         headerHtml += '</div>';
     }
-
-    // Convert custom rSection to standard section
-    html = html.replace(/\\begin\{rSection\}\s*\{(.*?)\}/g, '\\section*{$1}');
-    html = html.replace(/\\end\{rSection\}/g, '');
     
-    // Cleanup preamble commands
+    // Cleanup preamble commands that might be inside the document body
     html = html.replace(/\\documentclass(?:\[.*?\])?\{.*?\}/g, '');
     html = html.replace(/\\usepackage(?:\[.*?\])?\{.*?\}/g, '');
     html = html.replace(/\\geometry(?:\[.*?\])?\{.*?\}/g, '');
@@ -102,6 +101,12 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
     html = html.replace(/\\vspace\*?(?:\[.*?\])?\{.*?\}/g, '');
     html = html.replace(/\\maketitle/g, '');
 
+    // Handle custom rSection environment
+    html = html.replace(/\\begin\{rSection\}\s*\{(.*?)\}([\s\S]*?)\\end\{rSection\}/g, (fullMatch, title, content) => {
+        return `\\section*{${title}}${content}`;
+    });
+
+    // Iteratively process nested environments
     let changed = true;
     while (changed) {
         const originalHtml = html;
@@ -125,6 +130,7 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
         changed = originalHtml !== html;
     }
 
+    // Process center environment
     html = html.replace(/\\begin\{center\}([\s\S]*?)\\end\{center\}/gs, (_, inner) => {
         const lines = inner.trim().split(/\\\\(?:\[.*?\])?/);
         const processedLines = lines.map(line => {
@@ -135,44 +141,49 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
         return `<div class="text-center mb-4">${processedLines}</div>`;
     });
     
+    // Process sections and other standalone commands
     html = html.replace(/\\section\*?(?:\[.*?\])?\{(.*?)\}/gs, (_, inner) => `<h2 class="r-section-title">${processContent(inner)}</h2>`);
     html = html.replace(/\\hline/g, '<hr />');
     
+    // Split remaining content into paragraphs based on blank lines
     const blockRegex = /(<(?:div|ul|ol|h[1-6]|hr|a|table)[^>]*>[\s\S]*?<\/(?:div|ul|ol|h[1-6]|a|table)>|<hr\s*\/?>)/i;
     const parts = html.split(blockRegex).filter(Boolean);
     
     html = parts.map(part => {
         if (part.match(blockRegex)) {
-            return part;
+            return part; // It's already an HTML block, so leave it.
         }
 
+        // Process remaining raw text
         return part
             .trim()
-            .split(/\n\s*\n/)
+            .split(/\n\s*\n/) // Split by blank lines
             .filter(p => p.trim())
             .map(paragraph => {
                 const lines = paragraph.trim().split('\n');
-                const usesHfill = lines.some(l => l.includes('\\hfill'));
                 
-                if (usesHfill) {
+                // Check for lines with \hfill for special flexbox layout
+                const isFlexLayout = lines.some(l => l.includes('\\hfill'));
+                if (isFlexLayout) {
                     return lines.map(line => {
-                        const trimmedLine = line.trim();
-                        if (trimmedLine.includes('\\hfill')) {
-                            const segments = trimmedLine.split(/\\hfill/g).map(s => `<span>${processContent(s.trim())}</span>`);
+                        if (line.trim()) {
+                            const segments = line.split(/\\hfill/g).map(s => `<span>${processContent(s.trim())}</span>`);
                             return `<div class="flex-container">${segments.join('')}</div>`;
                         }
-                        return `<div>${processContent(trimmedLine)}</div>`;
+                        return '';
                     }).join('');
-                } else {
-                    const singleLineParagraph = lines.join(' ');
-                    return `<p>${processContent(singleLineParagraph)}</p>`;
                 }
+                
+                // Otherwise, treat as a single paragraph
+                const singleLineParagraph = lines.join(' ');
+                return `<p>${processContent(singleLineParagraph)}</p>`;
             })
             .join('');
     }).join('');
 
-    html = html.replace(/\\item/g, '');
-    html = html.replace(/<p><\/p>|<p>\s*<\/p>/g, '');
+    // Final cleanups
+    html = html.replace(/\\item/g, ''); // Remove stray \item commands
+    html = html.replace(/<p><\/p>|<p>\s*<\/p>/g, ''); // Remove empty paragraphs
 
     const finalHtml = headerHtml + html;
 

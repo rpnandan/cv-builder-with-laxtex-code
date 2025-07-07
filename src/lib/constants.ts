@@ -1,3 +1,4 @@
+
 export const DEFAULT_LATEX_CODE = `\\documentclass{resume} % Use the custom resume.cls style
 
 \\usepackage[left=0.4 in,top=0.4in,right=0.4 in,bottom=0.4in]{geometry} % Document margins
@@ -14,15 +15,15 @@ export const DEFAULT_LATEX_CODE = `\\documentclass{resume} % Use the custom resu
 %----------------------------------------------------------------------------------------
 
 \\begin{rSection}{Objective}
-Seeking a full-time Quality Engineer role in the tech or e-commerce industry, where I can apply my automation skills, backend/API testing expertise, and experience in AI-driven QA to ensure exceptional product quality and customer experience.
+Seeking a full-time Software Quality Engineering role at Apple where I can apply my automation skills, API testing expertise, and CI/CD integration experience to improve customer-facing applications and deliver exceptional user experiences.
 \\end{rSection}
 
 %----------------------------------------------------------------------------------------
-%	SUMMARY
+%	PROFESSIONAL SUMMARY
 %----------------------------------------------------------------------------------------
 
 \\begin{rSection}{Professional Summary}
-Quality Engineer with 2+ years of experience in functional, regression, and automation testing across web and backend systems. Proven ability to integrate automated test suites into CI/CD pipelines and use tools like GitHub Copilot to enhance test development. Strong background in API testing, e-commerce platforms, and cross-platform collaboration. ISTQB certified and passionate about automation excellence and continuous improvement.
+Quality Engineer with over 2 years of experience in functional, regression, and automation testing of web, API, and backend services. Proficient in Java, Python, Selenium, Robot Framework, and REST API testing. Experienced in CI/CD integration, Agile methodologies, and AI-powered tools like GitHub Copilot. ISTQB certified with a passion for clean automation architecture, test efficiency, and driving product quality.
 \\end{rSection}
 
 %----------------------------------------------------------------------------------------
@@ -30,64 +31,50 @@ Quality Engineer with 2+ years of experience in functional, regression, and auto
 %----------------------------------------------------------------------------------------
 
 \\begin{rSection}{Education}
-{\\bf Master of Computer Applications}, Lovely Professional University \\hfill {2020 - 2022}
+{\\bf Master of Computer Applications}, Lovely Professional University \\hfill {2020 – 2022}
 \\end{rSection}
 
 %----------------------------------------------------------------------------------------
-% TECHNICAL STRENGTHS	
+%	SKILLS
 %----------------------------------------------------------------------------------------
 
 \\begin{rSection}{Skills}
-\\begin{tabular}{ @{} >{\\bfseries}l @{\\hspace{6ex}} l }
-Programming & Python, PowerShell, Bash, Selenium with Java, C++ \\\\
-Automation Tools & Robot Framework, Automation Anywhere, TestNG \\\\
-Testing Skills & Regression Testing, UI/UX Testing, API & Backend Validation, Performance Testing \\\\
-CI/CD & Git, Jenkins, GitHub Actions, JIRA \\\\
-Platforms & Windows, MacOS \\\\
-Other Tools & GitHub Copilot, Postman, REST APIs, JIRA, Power BI (basic) \\\\
-\\end{tabular}
+\\begin{itemize}
+    \\item \\textbf{Languages:} Java, Python, C++, Shell Scripting
+    \\item \\textbf{Automation:} Selenium, Robot Framework, Appium, XCUI, Karate, RestAssured, Playwright
+    \\item \\textbf{Testing Types:} Functional, Regression, Performance, API/Web Services, Mobile (iOS), UI/UX
+    \\item \\textbf{Frameworks/Tools:} Maven, Gradle, Git, JIRA, GitHub Copilot, Jenkins, Postman
+    \\item \\textbf{CI/CD:} GitHub Actions, Jenkins, Agile, DevOps pipelines
+    \\item \\textbf{Cloud/Other:} Docker (basic), AWS (learning), JMeter (basic), Accessibility Testing (familiar)
+\\end{itemize}
 \\end{rSection}
 
 %----------------------------------------------------------------------------------------
-% EXPERIENCE
+%	EXPERIENCE
 %----------------------------------------------------------------------------------------
 
 \\begin{rSection}{Experience}
 \\textbf{Quality Engineer} \\hfill April 2023 – Present\\\\
 \\textbf{IBM} \\hfill \\textit{Bengaluru, IN}
 \\begin{itemize}
-    \\itemsep -3pt {}
-    \\item {\\bf Test Automation:} Developed reusable test suites using Robot Framework and integrated them into CI/CD pipelines, enabling automated validations of key web functionalities.
-    \\item {\\bf Regression & Functional Testing:} Led regression efforts for AT\\&T’s e-commerce portal ensuring seamless device availability, checkout, and delivery workflows.
-    \\item {\\bf API Testing:} Designed and executed backend API tests for scenarios like delivery pin code checks, stock validations, and device mapping.
-    \\item {\\bf AI-Augmented QA:} Leveraged GitHub Copilot to boost automation script quality and reduce manual test effort.
-    \\item {\\bf CI/CD Practices:} Integrated test suites into Git-based pipelines with JIRA workflows to enable faster feedback loops and gated deployments.
-    \\item {\\bf Cross-platform QA:} Validated compatibility and performance across both Windows and MacOS environments.
-    \\item {\\bf Collaboration & Defect Management:} Worked closely with developers and PMs to triage defects and prepare test summary reports for sprint demos.
-    \\item {\\bf Data-Driven Testing:} Created parameterized tests to simulate different user inputs and improve UI coverage.
+    \\item Designed and executed automation test frameworks for e-commerce and internal enterprise tools.
+    \\item Developed end-to-end UI and API tests using Robot Framework, Selenium with Java, and RestAssured.
+    \\item Integrated automation suites into CI/CD pipelines using Jenkins and GitHub Actions.
+    \\item Collaborated with developers and PMs to define test strategies and acceptance criteria.
+    \\item Conducted regression, smoke, and performance tests across Windows and Mac environments.
+    \\item Automated test cases for API responses and service-level integrations involving product delivery and availability logic.
+    \\item Performed root cause analysis and log reviews to identify defects across platforms.
+    \\item Leveraged GitHub Copilot to enhance test code quality and boost productivity.
 \\end{itemize}
 \\end{rSection}
 
 %----------------------------------------------------------------------------------------
-% CERTIFICATIONS
+%	CERTIFICATIONS
 %----------------------------------------------------------------------------------------
 
 \\begin{rSection}{Certifications}
 {\\bf ISTQB Certified Tester – Foundation Level} \\\\
 Certificate Number: ITB - CTFL-123504 (India)
-\\end{rSection}
-
-%----------------------------------------------------------------------------------------
-%	HOBBIES
-%----------------------------------------------------------------------------------------
-
-\\begin{rSection}{Hobbies}
-\\begin{itemize}
-    \\itemsep -3pt {} 
-    \\item Watching movies
-    \\item Listening to music
-    \\item Playing outdoor and video games
-\\end{itemize}
 \\end{rSection}
 
 \\end{document}
