@@ -122,8 +122,8 @@
   /* --- Resume Template Styles --- */
 
   /* Base styles applied to all templates via the .non-ai-rendered class */
-  .non-ai-rendered h2 {
-      @apply text-xl font-headline font-semibold text-primary mt-6 mb-3 border-b-2 border-primary/20 pb-2;
+  .non-ai-rendered h2.r-section-title {
+      @apply text-xl font-headline font-semibold text-primary mt-4 mb-2 border-b-2 border-primary/20 pb-1;
   }
   .non-ai-rendered h1 {
       @apply text-4xl font-headline font-bold tracking-tight mb-2;
@@ -155,6 +155,10 @@
   .non-ai-rendered li {
       @apply pb-1;
   }
+  .non-ai-rendered table td {
+      @apply py-1 pr-4;
+  }
+
 
   /* --- Template Specific Overrides --- */
 
@@ -164,7 +168,7 @@
   }
 
   /* Modern Minimalist Template */
-  .template-modern-minimalist h2 {
+  .template-modern-minimalist h2.r-section-title {
       @apply text-sm font-bold uppercase tracking-widest text-muted-foreground mt-8 mb-4 border-b border-border pb-2;
   }
   .template-modern-minimalist h1, .template-modern-minimalist h3 {
@@ -183,7 +187,7 @@
       --primary: 210 100% 56%; /* A more "techy" blue */
       --primary-foreground: 210 40% 98%;
   }
-  .template-tech-professional h2 {
+  .template-tech-professional h2.r-section-title {
       @apply border-primary/50 font-bold;
   }
   .template-tech-professional strong {

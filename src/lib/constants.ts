@@ -1,71 +1,94 @@
-export const DEFAULT_LATEX_CODE = `\\documentclass[a4paper,11pt]{article}
-\\usepackage{latexsym}
-\\usepackage{amsmath}
-\\usepackage{amssymb}
-\\usepackage{graphicx}
-\\usepackage{enumitem}
-\\usepackage{geometry}
-\\geometry{a4paper, total={170mm,257mm}, left=20mm, top=20mm}
-\\usepackage{hyperref}
+export const DEFAULT_LATEX_CODE = `\\documentclass{resume} % Use the custom resume.cls style
 
-\\hypersetup{
-    colorlinks=true,
-    linkcolor=blue,
-    filecolor=magenta,      
-    urlcolor=cyan,
-}
+\\usepackage[left=0.4 in,top=0.4in,right=0.4 in,bottom=0.4in]{geometry} % Document margins
+\\newcommand{\\tab}[1]{\\hspace{.2667\\textwidth}\\rlap{#1}} 
+\\newcommand{\\itab}[1]{\\hspace{0em}\\rlap{#1}}
+\\name{R.P. Nandan} % Your name
+\\address{Bengaluru, INDIA} 
+\\address{\\href{mailto:rpnandan@gmail.com}{rpnandan@gmail.com} \\\\ \\href{https://linkedin.com/rpnandan}{linkedin.com/rpnandan}} %
 
 \\begin{document}
 
-\\begin{center}
-    {\\Huge John Doe} \\\\
-    \\vspace{1mm}
-    \\today \\\\
-    \\vspace{1mm}
-    Anytown, USA \\\\
-    \\vspace{1mm}
-    (123) 456-7890 | \\href{mailto:john.doe@email.com}{john.doe@email.com} | \\href{https://linkedin.com/in/johndoe}{linkedin.com/in/johndoe} | \\href{https://github.com/johndoe}{github.com/johndoe}
-\\end{center}
+%----------------------------------------------------------------------------------------
+%	OBJECTIVE
+%----------------------------------------------------------------------------------------
 
-\\section*{Summary}
-Highly motivated and \\textit{results-oriented} Software Engineer with 5+ years of experience in developing, testing, \\& deploying robust software solutions. Proficient in various programming languages and technologies, with a strong foundation in data structures and algorithms. Seeking to leverage my skills to contribute to a challenging and innovative development environment.
+\\begin{rSection}{Objective}
+Seeking a full-time Quality Engineer role in the tech or e-commerce industry, where I can apply my automation skills, backend/API testing expertise, and experience in AI-driven QA to ensure exceptional product quality and customer experience.
+\\end{rSection}
 
-\\section*{Experience}
-\\begin{itemize}[leftmargin=*]
-    \\item \\textbf{Senior Software Engineer}, Tech Solutions Inc. \\hfill 2020 - Present
-    \\begin{itemize}
-        \\item Led a team of 5 engineers in the development of a new cloud-based SaaS platform.
-        \\item Designed and implemented microservices architecture using Docker and Kubernetes.
-        \\item Improved application performance by 30% through code optimization and database tuning.
-    \\end{itemize}
-    \\item \\textbf{Software Engineer}, Web Innovators LLC \\hfill 2018 - 2020
-    \\begin{itemize}
-        \\item Developed and maintained front-end components using React and Redux.
-        \\item Collaborated with UX/UI designers to create responsive and user-friendly interfaces.
-        \\item Wrote unit and integration tests, achieving 90% code coverage.
-    \\end{itemize}
+%----------------------------------------------------------------------------------------
+%	SUMMARY
+%----------------------------------------------------------------------------------------
+
+\\begin{rSection}{Professional Summary}
+Quality Engineer with 2+ years of experience in functional, regression, and automation testing across web and backend systems. Proven ability to integrate automated test suites into CI/CD pipelines and use tools like GitHub Copilot to enhance test development. Strong background in API testing, e-commerce platforms, and cross-platform collaboration. ISTQB certified and passionate about automation excellence and continuous improvement.
+\\end{rSection}
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION SECTION
+%----------------------------------------------------------------------------------------
+
+\\begin{rSection}{Education}
+{\\bf Master of Computer Applications}, Lovely Professional University \\hfill {2020 - 2022}
+\\end{rSection}
+
+%----------------------------------------------------------------------------------------
+% TECHNICAL STRENGTHS	
+%----------------------------------------------------------------------------------------
+
+\\begin{rSection}{Skills}
+\\begin{tabular}{ @{} >{\\bfseries}l @{\\hspace{6ex}} l }
+Programming & Python, PowerShell, Bash, Selenium with Java, C++ \\\\
+Automation Tools & Robot Framework, Automation Anywhere, TestNG \\\\
+Testing Skills & Regression Testing, UI/UX Testing, API & Backend Validation, Performance Testing \\\\
+CI/CD & Git, Jenkins, GitHub Actions, JIRA \\\\
+Platforms & Windows, MacOS \\\\
+Other Tools & GitHub Copilot, Postman, REST APIs, JIRA, Power BI (basic) \\\\
+\\end{tabular}
+\\end{rSection}
+
+%----------------------------------------------------------------------------------------
+% EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\\begin{rSection}{Experience}
+\\textbf{Quality Engineer} \\hfill April 2023 – Present\\\\
+\\textbf{IBM} \\hfill \\textit{Bengaluru, IN}
+\\begin{itemize}
+    \\itemsep -3pt {}
+    \\item {\\bf Test Automation:} Developed reusable test suites using Robot Framework and integrated them into CI/CD pipelines, enabling automated validations of key web functionalities.
+    \\item {\\bf Regression & Functional Testing:} Led regression efforts for AT\\&T’s e-commerce portal ensuring seamless device availability, checkout, and delivery workflows.
+    \\item {\\bf API Testing:} Designed and executed backend API tests for scenarios like delivery pin code checks, stock validations, and device mapping.
+    \\item {\\bf AI-Augmented QA:} Leveraged GitHub Copilot to boost automation script quality and reduce manual test effort.
+    \\item {\\bf CI/CD Practices:} Integrated test suites into Git-based pipelines with JIRA workflows to enable faster feedback loops and gated deployments.
+    \\item {\\bf Cross-platform QA:} Validated compatibility and performance across both Windows and MacOS environments.
+    \\item {\\bf Collaboration & Defect Management:} Worked closely with developers and PMs to triage defects and prepare test summary reports for sprint demos.
+    \\item {\\bf Data-Driven Testing:} Created parameterized tests to simulate different user inputs and improve UI coverage.
 \\end{itemize}
+\\end{rSection}
 
-\\section*{Projects}
-\\textbf{Project Titan} \\hfill \\textit{Next-Gen Data Pipeline}
-\\begin{itemize}[leftmargin=*]
-    \\item Developed a scalable data processing pipeline using Apache Kafka and Spark.
-    \\item Reduced data processing time by 50% and improved data accuracy.
+%----------------------------------------------------------------------------------------
+% CERTIFICATIONS
+%----------------------------------------------------------------------------------------
+
+\\begin{rSection}{Certifications}
+{\\bf ISTQB Certified Tester – Foundation Level} \\\\
+Certificate Number: ITB - CTFL-123504 (India)
+\\end{rSection}
+
+%----------------------------------------------------------------------------------------
+%	HOBBIES
+%----------------------------------------------------------------------------------------
+
+\\begin{rSection}{Hobbies}
+\\begin{itemize}
+    \\itemsep -3pt {} 
+    \\item Watching movies
+    \\item Listening to music
+    \\item Playing outdoor and video games
 \\end{itemize}
-
-\\section*{Education}
-\\begin{itemize}[leftmargin=*]
-    \\item \\textbf{M.S. in Computer Science}, University of Technology \\hfill 2016 - 2018
-    \\item \\textbf{B.S. in Computer Science}, State University \\hfill 2012 - 2016
-\\end{itemize}
-
-\\section*{Technical Skills}
-\\begin{enumerate}[leftmargin=*]
-    \\item \\textbf{Programming Languages:} Java, Python, JavaScript, TypeScript, Go
-    \\item \\textbf{Frameworks:} Spring Boot, Django, React, Node.js
-    \\item \\textbf{Databases:} PostgreSQL, MongoDB, Redis
-    \\item \\textbf{Tools:} Docker, Kubernetes, Jenkins, Git, AWS
-\\end{enumerate}
+\\end{rSection}
 
 \\end{document}
 `;

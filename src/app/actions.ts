@@ -22,7 +22,7 @@ function processContent(text: string): string {
         .replace(/{\\LARGE\s(.*?)}|\\LARGE\{(.*?)\}/gs, (_, g1, g2) => `<h2>${processContent(g1 || g2 || '')}</h2>`)
         .replace(/{\\Large\s(.*?)}|\\Large\{(.*?)\}/gs, (_, g1, g2) => `<h3>${processContent(g1 || g2 || '')}</h3>`)
         .replace(/{\\large\s(.*?)}|\\large\{(.*?)\}/gs, (_, g1, g2) => `<div class="text-lg font-semibold mb-1">${processContent(g1 || g2 || '')}</div>`)
-        .replace(/\\textbf\{(.*?)\}/gs, (_, inner) => `<strong>${processContent(inner)}</strong>`)
+        .replace(/\\textbf\{(.*?)\}|{\\bf(.*?)}/gs, (_, g1, g2) => `<strong>${processContent(g1 || g2 || '')}</strong>`)
         .replace(/\\textit\{(.*?)\}/gs, (_, inner) => `<em>${processContent(inner)}</em>`)
         .replace(/\\underline\{(.*?)\}/gs, (_, inner) => `<span class="underline">${processContent(inner)}</span>`)
         .replace(/\\small\{(.*?)\}/gs, (_, inner) => `<span class="text-sm">${processContent(inner)}</span>`)
@@ -30,6 +30,8 @@ function processContent(text: string): string {
 
     // Non-recursive replacements
     return processedText
+        .replace(/\\itemsep\s*.*?\s*\{.*?\}/g, '') // Remove itemsep
+        .replace(/\\(tab|itab)\{.*?\}/g, '') // Remove custom tab commands
         .replace(/\\%/g, '%')
         .replace(/\\&/g, '&')
         .replace(/\\\$/g, '$')
@@ -44,14 +46,59 @@ function processContent(text: string): string {
         .replace(/~/g, '&nbsp;');
 }
 
+function parseTabular(content: string, format: string): string {
+    const hasBoldFirstCol = format.includes('>{\\bfseries}l') || format.includes('>{\\bf}l');
+    const rows = content.trim().split(/\\\\\s*/).filter(r => r.trim());
+
+    const tableRows = rows.map(row => {
+        const cells = row.split('&').map((cell, index) => {
+            let cellContent = processContent(cell.trim());
+            if (hasBoldFirstCol && index === 0) {
+                return `<td class="font-bold">${cellContent}</td>`;
+            }
+            return `<td>${cellContent}</td>`;
+        }).join('');
+        return `<tr>${cells}</tr>`;
+    }).join('');
+
+    return `<table class="w-full">${tableRows}</table>`;
+}
 
 function simpleLatexToHtml(latex: string, templateName?: string): string {
     let html = latex.match(/\\begin\{document\}([\s\S]*)\\end\{document\}/)?.[1] || latex;
 
+    // --- Pre-processing for custom commands ---
+    
+    // Custom header commands
+    const nameMatch = latex.match(/\\name\{(.*?)\}/);
+    const addressMatches = Array.from(latex.matchAll(/\\address\{(.*?)\}/g));
+    
+    let headerHtml = '';
+    if (nameMatch) {
+        headerHtml += `<div class="text-center mb-4"><h1>${processContent(nameMatch[1])}</h1>`;
+        html = html.replace(/\\name\{(.*?)\}/, '');
+    }
+    if (addressMatches.length > 0) {
+        addressMatches.forEach(match => {
+            headerHtml += `<div>${processContent(match[1])}</div>`;
+            html = html.replace(match[0], '');
+        });
+    }
+    if (headerHtml) {
+        headerHtml += '</div>';
+    }
+
+    // Convert custom rSection to standard section
+    html = html.replace(/\\begin\{rSection\}\s*\{(.*?)\}/g, '\\section*{$1}');
+    html = html.replace(/\\end\{rSection\}/g, '');
+    
+    // Cleanup preamble commands
     html = html.replace(/\\documentclass(?:\[.*?\])?\{.*?\}/g, '');
     html = html.replace(/\\usepackage(?:\[.*?\])?\{.*?\}/g, '');
     html = html.replace(/\\geometry(?:\[.*?\])?\{.*?\}/g, '');
     html = html.replace(/\\hypersetup\{[\s\S]*?\}/gs, '');
+    html = html.replace(/\\newcommand\{.*?\}/g, '');
+    html = html.replace(/\\(name|address)\{.*?\}/g, '');
     html = html.replace(/\\vspace\*?(?:\[.*?\])?\{.*?\}/g, '');
     html = html.replace(/\\maketitle/g, '');
 
@@ -72,6 +119,9 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
             }).join('');
             return `<ol>${items}</ol>`;
         });
+        html = html.replace(/\\begin\{tabular\}\s*\{(.+?)\}([\s\S]*?)\\end\{tabular\}/gs, (_, format, content) => {
+            return parseTabular(content, format);
+        });
         changed = originalHtml !== html;
     }
 
@@ -85,10 +135,10 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
         return `<div class="text-center mb-4">${processedLines}</div>`;
     });
     
-    html = html.replace(/\\section\*?(?:\[.*?\])?\{(.*?)\}/gs, (_, inner) => `<h2>${processContent(inner)}</h2>`);
+    html = html.replace(/\\section\*?(?:\[.*?\])?\{(.*?)\}/gs, (_, inner) => `<h2 class="r-section-title">${processContent(inner)}</h2>`);
     html = html.replace(/\\hline/g, '<hr />');
     
-    const blockRegex = /(<(?:div|ul|ol|h[1-6]|hr|a)[^>]*>[\s\S]*?<\/(?:div|ul|ol|h[1-6]|a)>|<hr\s*\/?>)/i;
+    const blockRegex = /(<(?:div|ul|ol|h[1-6]|hr|a|table)[^>]*>[\s\S]*?<\/(?:div|ul|ol|h[1-6]|a|table)>|<hr\s*\/?>)/i;
     const parts = html.split(blockRegex).filter(Boolean);
     
     html = parts.map(part => {
@@ -111,7 +161,7 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
                             const segments = trimmedLine.split(/\\hfill/g).map(s => `<span>${processContent(s.trim())}</span>`);
                             return `<div class="flex-container">${segments.join('')}</div>`;
                         }
-                        return `<p>${processContent(trimmedLine)}</p>`;
+                        return `<div>${processContent(trimmedLine)}</div>`;
                     }).join('');
                 } else {
                     const singleLineParagraph = lines.join(' ');
@@ -124,8 +174,10 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
     html = html.replace(/\\item/g, '');
     html = html.replace(/<p><\/p>|<p>\s*<\/p>/g, '');
 
+    const finalHtml = headerHtml + html;
+
     const templateClassName = templateName ? `template-${templateName.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}` : 'template-classic-professional';
-    return `<div class="non-ai-rendered ${templateClassName} p-8 md:p-12 font-body bg-card text-card-foreground h-full">${html}</div>`;
+    return `<div class="non-ai-rendered ${templateClassName} p-8 md:p-12 font-body bg-card text-card-foreground h-full">${finalHtml}</div>`;
 }
 
 export async function generateResumeAction(
