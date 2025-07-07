@@ -81,12 +81,24 @@
     .no-print {
       display: none;
     }
+    
+    /* Ensure scroll areas don't clip content during print */
+    [data-radix-scroll-area-root], [data-radix-scroll-area-viewport] {
+        overflow: visible !important;
+    }
+
     body * {
       visibility: hidden;
     }
+    
+    body, html {
+        background: #fff !important;
+    }
+
     #resume-preview-content, #resume-preview-content * {
       visibility: visible;
     }
+
     #resume-preview-content {
       position: absolute;
       left: 0;
@@ -94,14 +106,17 @@
       right: 0;
       bottom: 0;
       width: 100%;
-      height: 100%;
+      height: auto;
       margin: 0;
-      padding: 1in;
+      padding: 0;
       border: none;
-      transform: scale(1);
+      transform: none;
     }
+
     .non-ai-rendered {
-      padding: 0 !important;
+      padding: 1in !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
   }
 }
