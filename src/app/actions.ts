@@ -75,7 +75,15 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
         changed = originalHtml !== html;
     }
 
-    html = html.replace(/\\begin\{center\}([\s\S]*?)\\end\{center\}/gs, (_, inner) => `<div class="text-center mb-4">${processContent(inner.trim())}</div>`);
+    html = html.replace(/\\begin\{center\}([\s\S]*?)\\end\{center\}/gs, (_, inner) => {
+        const lines = inner.trim().split(/\\\\(?:\[.*?\])?/);
+        const processedLines = lines.map(line => {
+            const trimmedLine = line.trim();
+            if (!trimmedLine) return '';
+            return `<div>${processContent(trimmedLine)}</div>`;
+        }).join('');
+        return `<div class="text-center mb-4">${processedLines}</div>`;
+    });
     
     html = html.replace(/\\section\*?(?:\[.*?\])?\{(.*?)\}/gs, (_, inner) => `<h2>${processContent(inner)}</h2>`);
     html = html.replace(/\\hline/g, '<hr />');
