@@ -100,5 +100,8 @@
       border: none;
       transform: scale(1);
     }
+    .non-ai-rendered {
+      padding: 0 !important;
+    }
   }
 }
