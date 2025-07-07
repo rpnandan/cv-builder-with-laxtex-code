@@ -13,10 +13,23 @@ const actionInputSchema = z.object({
   templateName: z.string().optional(),
 });
 
-function processInlineCommands(text: string): string {
+function processContent(text: string): string {
     if (!text) return '';
-    
+
+    // Recursive processing of formatting commands
     let processedText = text
+        .replace(/{\\Huge\s(.*?)}|\\Huge\{(.*?)\}/gs, (_, g1, g2) => `<h1>${processContent(g1 || g2 || '')}</h1>`)
+        .replace(/{\\LARGE\s(.*?)}|\\LARGE\{(.*?)\}/gs, (_, g1, g2) => `<h2>${processContent(g1 || g2 || '')}</h2>`)
+        .replace(/{\\Large\s(.*?)}|\\Large\{(.*?)\}/gs, (_, g1, g2) => `<h3>${processContent(g1 || g2 || '')}</h3>`)
+        .replace(/{\\large\s(.*?)}|\\large\{(.*?)\}/gs, (_, g1, g2) => `<div class="text-lg font-semibold mb-1">${processContent(g1 || g2 || '')}</div>`)
+        .replace(/\\textbf\{(.*?)\}/gs, (_, inner) => `<strong>${processContent(inner)}</strong>`)
+        .replace(/\\textit\{(.*?)\}/gs, (_, inner) => `<em>${processContent(inner)}</em>`)
+        .replace(/\\underline\{(.*?)\}/gs, (_, inner) => `<span class="underline">${processContent(inner)}</span>`)
+        .replace(/\\small\{(.*?)\}/gs, (_, inner) => `<span class="text-sm">${processContent(inner)}</span>`)
+        .replace(/\\href\{(.*?)\}\{(.*?)\}/gs, (_, url, linkText) => `<a href="${url.trim()}" target="_blank" rel="noopener noreferrer">${processContent(linkText)}</a>`);
+
+    // Non-recursive replacements
+    return processedText
         .replace(/\\%/g, '%')
         .replace(/\\&/g, '&')
         .replace(/\\\$/g, '$')
@@ -24,21 +37,13 @@ function processInlineCommands(text: string): string {
         .replace(/\\_/g, '_')
         .replace(/\\{/g, '{')
         .replace(/\\}/g, '}')
-        .replace(/\\textbf\{(.*?)\}/gs, (_, inner) => `<strong>${processInlineCommands(inner)}</strong>`)
-        .replace(/\\textit\{(.*?)\}/gs, (_, inner) => `<em>${processInlineCommands(inner)}</em>`)
-        .replace(/\\underline\{(.*?)\}/gs, (_, inner) => `<span class="underline">${processInlineCommands(inner)}</span>`)
-        .replace(/\\small\{(.*?)\}/gs, (_, inner) => `<span class="text-sm">${processInlineCommands(inner)}</span>`)
-        .replace(/\\href\{(.*?)\}\{(.*?)\}/gs, (_, url, linkText) => `<a href="${url.trim()}" target="_blank" rel="noopener noreferrer">${processInlineCommands(linkText)}</a>`);
-    
-    processedText = processedText
         .replace(/\\today/g, new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }))
         .replace(/\\\\(?:\[.*?\])?/g, '<br />')
         .replace(/\\quad/g, '&emsp;')
         .replace(/\\qquad/g, '&emsp;&emsp;')
         .replace(/~/g, '&nbsp;');
-
-    return processedText;
 }
+
 
 function simpleLatexToHtml(latex: string, templateName?: string): string {
     let html = latex.match(/\\begin\{document\}([\s\S]*)\\end\{document\}/)?.[1] || latex;
@@ -56,28 +61,23 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
         html = html.replace(/\\begin\{itemize\}(?:\[.*?\])?((?:(?!\\begin\{itemize\}|\\end\{itemize\})[\s\S])*?)\\end\{itemize\}/gs, (_, inner) => {
             const items = inner.split(/\\item(?![a-z])/).filter(s => s.trim()).map(item => {
                 const cleanItem = item.trim().replace(/^\[.*?\]\s*/, '');
-                return `<li>${processInlineCommands(cleanItem)}</li>`;
+                return `<li>${processContent(cleanItem)}</li>`;
             }).join('');
             return `<ul>${items}</ul>`;
         });
         html = html.replace(/\\begin\{enumerate\}(?:\[.*?\])?((?:(?!\\begin\{enumerate\}|\\end\{enumerate\})[\s\S])*?)\\end\{enumerate\}/gs, (_, inner) => {
             const items = inner.split(/\\item(?![a-z])/).filter(s => s.trim()).map(item => {
                 const cleanItem = item.trim().replace(/^\[.*?\]\s*/, '');
-                return `<li>${processInlineCommands(cleanItem)}</li>`;
+                return `<li>${processContent(cleanItem)}</li>`;
             }).join('');
             return `<ol>${items}</ol>`;
         });
         changed = originalHtml !== html;
     }
 
-    html = html.replace(/\\begin\{center\}([\s\S]*?)\\end\{center\}/gs, (_, inner) => `<div class="text-center mb-4">${processInlineCommands(inner.trim())}</div>`);
+    html = html.replace(/\\begin\{center\}([\s\S]*?)\\end\{center\}/gs, (_, inner) => `<div class="text-center mb-4">${processContent(inner.trim())}</div>`);
     
-    html = html.replace(/{\\Huge\s(.*?)}|\\Huge\{(.*?)\}/gs, (_, g1, g2) => `<h1>${processInlineCommands(g1 || g2 || '')}</h1>`);
-    html = html.replace(/{\\LARGE\s(.*?)}|\\LARGE\{(.*?)\}/gs, (_, g1, g2) => `<h2>${processInlineCommands(g1 || g2 || '')}</h2>`);
-    html = html.replace(/{\\Large\s(.*?)}|\\Large\{(.*?)\}/gs, (_, g1, g2) => `<h3>${processInlineCommands(g1 || g2 || '')}</h3>`);
-    html = html.replace(/{\\large\s(.*?)}|\\large\{(.*?)\}/gs, (_, g1, g2) => `<div class="text-lg font-semibold mb-1">${processInlineCommands(g1 || g2 || '')}</div>`);
-    
-    html = html.replace(/\\section\*?(?:\[.*?\])?\{(.*?)\}/gs, (_, inner) => `<h2>${processInlineCommands(inner)}</h2>`);
+    html = html.replace(/\\section\*?(?:\[.*?\])?\{(.*?)\}/gs, (_, inner) => `<h2>${processContent(inner)}</h2>`);
     html = html.replace(/\\hline/g, '<hr />');
     
     const blockRegex = /(<(?:div|ul|ol|h[1-6]|hr|a)[^>]*>[\s\S]*?<\/(?:div|ul|ol|h[1-6]|a)>|<hr\s*\/?>)/i;
@@ -100,14 +100,14 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
                     return lines.map(line => {
                         const trimmedLine = line.trim();
                         if (trimmedLine.includes('\\hfill')) {
-                            const segments = trimmedLine.split(/\\hfill/g).map(s => `<span>${processInlineCommands(s.trim())}</span>`);
+                            const segments = trimmedLine.split(/\\hfill/g).map(s => `<span>${processContent(s.trim())}</span>`);
                             return `<div class="flex-container">${segments.join('')}</div>`;
                         }
-                        return `<p>${processInlineCommands(trimmedLine)}</p>`;
+                        return `<p>${processContent(trimmedLine)}</p>`;
                     }).join('');
                 } else {
                     const singleLineParagraph = lines.join(' ');
-                    return `<p>${processInlineCommands(singleLineParagraph)}</p>`;
+                    return `<p>${processContent(singleLineParagraph)}</p>`;
                 }
             })
             .join('');
