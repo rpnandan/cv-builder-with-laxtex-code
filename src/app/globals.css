@@ -193,4 +193,71 @@
   .template-tech-professional strong {
       @apply text-primary;
   }
+
+  /* Academic CV Template */
+  .template-academic-cv {
+    --primary: 220 10% 40%; /* A more muted, professional dark slate gray */
+    @apply font-body;
+  }
+  .template-academic-cv h1 {
+    @apply text-3xl font-bold text-center tracking-normal normal-case mb-4;
+  }
+  .template-academic-cv .text-center {
+    @apply text-sm;
+  }
+  .template-academic-cv h2.r-section-title {
+    @apply text-base font-bold uppercase tracking-widest text-foreground mt-6 mb-3 border-b-2 border-border pb-1;
+  }
+  .template-academic-cv ul {
+    @apply list-none pl-2;
+  }
+  .template-academic-cv li {
+    @apply pl-4 relative before:content-['•'] before:absolute before:left-0 before:text-primary;
+  }
+
+  /* Simple & Clean Template */
+  .template-simple-clean h1 {
+      @apply text-3xl font-semibold tracking-normal;
+  }
+  .template-simple-clean h2.r-section-title {
+      @apply text-lg font-semibold tracking-normal text-muted-foreground mt-6 mb-3 border-none pb-0;
+  }
+  .template-simple-clean ul {
+      @apply list-none pl-1;
+  }
+  .template-simple-clean li {
+      @apply pl-4 relative before:content-['-'] before:absolute before:left-0 before:text-muted-foreground;
+  }
+  .template-simple-clean hr {
+      @apply hidden;
+  }
+
+  /* Executive Suite Template */
+  .template-executive-suite {
+      --primary: 200 20% 30%; /* Dark, desaturated cyan */
+      --border: 200 20% 80%;
+  }
+  .template-executive-suite h1 {
+      @apply text-5xl font-normal uppercase tracking-widest text-center;
+  }
+  .template-executive-suite h2.r-section-title {
+      @apply text-xl font-normal text-primary tracking-wider uppercase mt-8 mb-3 border-b-4 border-primary/30 pb-2;
+  }
+
+  /* Bold Typography Template */
+  .template-bold-typography {
+    --primary: 16 100% 50%; /* A strong orange */
+  }
+  .template-bold-typography h1, .template-bold-typography h2.r-section-title, .template-bold-typography strong {
+    @apply font-bold;
+  }
+  .template-bold-typography h1 {
+    @apply text-5xl tracking-tighter;
+  }
+  .template-bold-typography h2.r-section-title {
+    @apply text-2xl tracking-tight border-b-4 border-primary pb-2;
+  }
+  .template-bold-typography ul {
+    list-style-type: square;
+  }
 }
