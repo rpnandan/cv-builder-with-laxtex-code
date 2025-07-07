@@ -61,22 +61,25 @@ function parseTabular(content: string, format: string): string {
     const rows = content.trim().split(/\\\\\s*/).filter(r => r.trim());
 
     const tableRows = rows.map(row => {
-        const cells = row.split('&').map(c => c.trim());
+        // A more robust split that handles ampersands in the content
+        const parts = row.split('&');
+        const cells = [parts[0], parts.slice(1).join('&')].map(c => c.trim());
 
         const renderedCells = cells.map((cell, index) => {
             let cellContent = processContent(cell.trim());
             if (index === 0) {
                 const boldClass = hasBoldFirstCol ? 'font-bold' : '';
-                 // Add extra padding to simulate \hspace{6ex} from the format string
-                const paddingClass = format.includes('hspace{6ex}') ? 'pr-12' : 'pr-4';
-                return `<td class="${boldClass} ${paddingClass} whitespace-nowrap">${cellContent}</td>`;
+                // Reduce padding and make the column width fixed to optimize space
+                const paddingClass = format.includes('hspace{6ex}') ? 'pr-6' : 'pr-4';
+                return `<td class="${boldClass} ${paddingClass} align-top w-1/4">${cellContent}</td>`;
             }
-            return `<td>${cellContent}</td>`;
+            // Add align-top to the second cell as well for consistent vertical alignment
+            return `<td class="align-top">${cellContent}</td>`;
         }).join('');
         return `<tr>${renderedCells}</tr>`;
     }).join('');
 
-    return `<table class="w-full">${tableRows}</table>`;
+    return `<table class="w-full table-fixed">${tableRows}</table>`;
 }
 
 function simpleLatexToHtml(latex: string, templateName?: string): string {
@@ -155,7 +158,7 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
             .join('');
             return `<ol>${items}</ol>`;
         });
-        html = html.replace(/\\begin\{tabular\}\s*\{(.*)\}([\s\S]*?)\\end\{tabular\}/gs, (_, format, content) => {
+        html = html.replace(/\\begin\{tabular\}\s*\{(.*)\}([\s\S]*?)\\end\{tabular\}/gs, (fullMatch, format, content) => {
             return parseTabular(content, format);
         });
         changed = originalHtml !== html;
@@ -194,7 +197,10 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
             if (paragraphBuffer.length > 0) {
                 // Join with a simple space. Let the `\\` in the original
                 // text dictate the line breaks.
-                resultHtml += `<p>${processContent(paragraphBuffer.join(' '))}</p>`;
+                const content = processContent(paragraphBuffer.join(' '));
+                 if (content) {
+                    resultHtml += `<p>${content}</p>`;
+                }
                 paragraphBuffer = [];
             }
         };
@@ -221,6 +227,8 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
     // Final cleanups
     html = html.replace(/\\item/g, ''); // Remove stray \item commands
     html = html.replace(/<p><\/p>|<p>\s*<\/p>/g, ''); // Remove empty paragraphs
+    html = html.replace(/(<br\s*\/?>\s*)+/g, '<br />'); // Collapse multiple breaks
+    html = html.replace(/<p>\s*<br\s*\/?\s*<\/p>/g, ''); // Remove paragraphs with only a break
 
     let finalHtmlResult = headerHtml + html;
 
