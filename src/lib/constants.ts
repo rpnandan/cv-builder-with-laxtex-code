@@ -28,17 +28,17 @@ export const DEFAULT_LATEX_CODE = `\\documentclass[a4paper,11pt]{article}
 \\end{center}
 
 \\section*{Summary}
-Highly motivated and \\textit{results-oriented} Software Engineer with 5+ years of experience in developing, testing, and deploying robust software solutions. Proficient in various programming languages and technologies, with a strong foundation in data structures and algorithms. Seeking to leverage my skills to contribute to a challenging and innovative development environment.
+Highly motivated and \\textit{results-oriented} Software Engineer with 5+ years of experience in developing, testing, \\& deploying robust software solutions. Proficient in various programming languages and technologies, with a strong foundation in data structures and algorithms. Seeking to leverage my skills to contribute to a challenging and innovative development environment.
 
 \\section*{Experience}
 \\begin{itemize}[leftmargin=*]
-    \\item \\textbf{Senior Software Engineer}, Tech Solutions Inc. | 2020 - Present
+    \\item \\textbf{Senior Software Engineer}, Tech Solutions Inc. \\hfill 2020 - Present
     \\begin{itemize}
         \\item Led a team of 5 engineers in the development of a new cloud-based SaaS platform.
         \\item Designed and implemented microservices architecture using Docker and Kubernetes.
         \\item Improved application performance by 30% through code optimization and database tuning.
     \\end{itemize}
-    \\item \\textbf{Software Engineer}, Web Innovators LLC | 2018 - 2020
+    \\item \\textbf{Software Engineer}, Web Innovators LLC \\hfill 2018 - 2020
     \\begin{itemize}
         \\item Developed and maintained front-end components using React and Redux.
         \\item Collaborated with UX/UI designers to create responsive and user-friendly interfaces.
@@ -47,7 +47,7 @@ Highly motivated and \\textit{results-oriented} Software Engineer with 5+ years 
 \\end{itemize}
 
 \\section*{Projects}
-\\large{\\textbf{Project Titan}} \\quad \\small{\\textit{Next-Gen Data Pipeline}}
+\\textbf{Project Titan} \\hfill \\textit{Next-Gen Data Pipeline}
 \\begin{itemize}[leftmargin=*]
     \\item Developed a scalable data processing pipeline using Apache Kafka and Spark.
     \\item Reduced data processing time by 50% and improved data accuracy.
@@ -55,8 +55,8 @@ Highly motivated and \\textit{results-oriented} Software Engineer with 5+ years 
 
 \\section*{Education}
 \\begin{itemize}[leftmargin=*]
-    \\item \\textbf{M.S. in Computer Science}, University of Technology | 2016 - 2018
-    \\item \\textbf{B.S. in Computer Science}, State University | 2012 - 2016
+    \\item \\textbf{M.S. in Computer Science}, University of Technology \\hfill 2016 - 2018
+    \\item \\textbf{B.S. in Computer Science}, State University \\hfill 2012 - 2016
 \\end{itemize}
 
 \\section*{Technical Skills}

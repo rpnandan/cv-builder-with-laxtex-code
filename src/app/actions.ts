@@ -16,6 +16,7 @@ const actionInputSchema = z.object({
 function simpleLatexToHtml(latex: string): string {
     function processInlineCommands(text: string): string {
         if (!text) return '';
+        // Recursively process nested commands
         let processedText = text
             .replace(/\\textbf\{(.*?)\}/gs, (_, inner) => `<strong class="font-semibold text-foreground">${processInlineCommands(inner)}</strong>`)
             .replace(/\\textit\{(.*?)\}/gs, (_, inner) => `<em>${processInlineCommands(inner)}</em>`)
@@ -23,26 +24,31 @@ function simpleLatexToHtml(latex: string): string {
             .replace(/\\small\{(.*?)\}/gs, (_, inner) => `<span class="text-sm">${processInlineCommands(inner)}</span>`)
             .replace(/\\href\{(.*?)\}\{(.*?)\}/gs, (_, url, linkText) => `<a href="${url}" class="text-primary hover:underline">${processInlineCommands(linkText)}</a>`);
         
+        // Process simple replacement commands
         processedText = processedText
+            .replace(/\\&/g, '&') // Handle ampersand
             .replace(/\\today/g, new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }))
             .replace(/\\\\/g, '<br />')
             .replace(/\\quad/g, '&emsp;')
             .replace(/\\qquad/g, '&emsp;&emsp;')
-            .replace(/\\vspace\*?(?:\[.*?\])?(?:\{.*?\})?/g, '');
+            .replace(/\\vspace\*?(?:\[.*?\])?(?:\{.*?\})?/g, ''); // Strip vspace
 
         return processedText;
     }
 
     let html = latex.match(/\\begin\{document\}([\s\S]*)\\end\{document\}/)?.[1] || latex;
 
+    // Strip preamble
     html = html.replace(/\\documentclass(?:\[.*?\])?\{.*?\}/g, '');
     html = html.replace(/\\usepackage(?:\[.*?\])?\{.*?\}/g, '');
     html = html.replace(/\\geometry(?:\[.*?\])?\{.*?\}/g, '');
     html = html.replace(/\\hypersetup\{[\s\S]*?\}/gs, '');
 
+    // Process environments from inside out to handle nesting
     let changed = true;
     while (changed) {
         const originalHtml = html;
+        // Itemize (unordered list)
         html = html.replace(/\\begin\{itemize\}(?:\[.*?\])?((?:(?!\\begin\{itemize\}|\\end\{itemize\})[\s\S])*?)\\end\{itemize\}/gs, (_, inner) => {
             const items = inner.split(/\\item(?![a-z])/).filter(s => s.trim()).map(item => {
                 const cleanItem = item.trim().replace(/^\[.*?\]\s*/, '');
@@ -50,6 +56,7 @@ function simpleLatexToHtml(latex: string): string {
             }).join('');
             return `<ul class="list-disc list-outside pl-5 space-y-1">${items}</ul>`;
         });
+        // Enumerate (ordered list)
         html = html.replace(/\\begin\{enumerate\}(?:\[.*?\])?((?:(?!\\begin\{enumerate\}|\\end\{enumerate\})[\s\S])*?)\\end\{enumerate\}/gs, (_, inner) => {
             const items = inner.split(/\\item(?![a-z])/).filter(s => s.trim()).map(item => {
                 const cleanItem = item.trim().replace(/^\[.*?\]\s*/, '');
@@ -60,35 +67,51 @@ function simpleLatexToHtml(latex: string): string {
         changed = originalHtml !== html;
     }
 
+    // Process block-level commands
     html = html.replace(/\\begin\{center\}([\s\S]*?)\\end\{center\}/gs, (_, inner) => `<div class="text-center mb-8 pb-6 border-b">${processInlineCommands(inner.trim())}</div>`);
     
+    // Font size commands
     html = html.replace(/{\\Huge\s(.*?)}|\\Huge\{(.*?)\}/gs, (_, g1, g2) => `<h1 class="text-4xl font-headline font-bold tracking-tight mb-2">${processInlineCommands(g1 || g2 || '')}</h1>`);
     html = html.replace(/{\\LARGE\s(.*?)}|\\LARGE\{(.*?)\}/gs, (_, g1, g2) => `<h2 class="text-3xl font-headline font-bold tracking-tight mb-2">${processInlineCommands(g1 || g2 || '')}</h2>`);
     html = html.replace(/{\\Large\s(.*?)}|\\Large\{(.*?)\}/gs, (_, g1, g2) => `<h3 class="text-2xl font-headline font-semibold mb-1">${processInlineCommands(g1 || g2 || '')}</h3>`);
     html = html.replace(/{\\large\s(.*?)}|\\large\{(.*?)\}/gs, (_, g1, g2) => `<div class="text-lg font-semibold mb-1">${processInlineCommands(g1 || g2 || '')}</div>`);
     
+    // Sectioning
     html = html.replace(/\\section\*?(?:\[.*?\])?\{(.*?)\}/gs, (_, inner) => `<h2 class="text-xl font-headline font-semibold text-primary mt-6 mb-3 border-b-2 border-primary/20 pb-2">${processInlineCommands(inner)}</h2>`);
     html = html.replace(/\\hline/g, '<hr class="my-4 border-border" />');
     
+    // Cleanup leftover item commands
     html = html.replace(/\\item/g, '');
     
-    const blockTags = ['div', 'ul', 'ol', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+    const blockTags = ['div', 'ul', 'ol', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr'];
     const blockRegex = new RegExp(`(<(?:${blockTags.join('|')})[^>]*>[\\s\\S]*?<\\/(?:${blockTags.join('|')})>|<hr\\s*\\/?>)`, 'gi');
     
     const parts = html.split(blockRegex);
     
+    // Process remaining text content into paragraphs or flex containers
     html = parts.map(part => {
         if (!part || part.trim() === '') return '';
+        // If it's an already processed block, return it as is
         if (part.match(blockRegex)) {
             return part;
         }
+        // Process text chunks, splitting by double newlines to create paragraphs
         return part.trim().split(/\n\s*\n/).map(p => {
-            const trimmedP = p.trim();
+            const trimmedP = p.trim().replace(/\n/g, ' ');
             if (!trimmedP) return '';
-            return `<p class="leading-relaxed">${processInlineCommands(trimmedP.replace(/\n/g, ' '))}</p>`;
+            
+            // Handle lines with \hfill for flexible spacing
+            if (trimmedP.includes('\\hfill')) {
+                const segments = trimmedP.split(/\\hfill/g).map(s => `<span>${processInlineCommands(s.trim())}</span>`);
+                return `<div class="flex items-center w-full">${segments.join('<span class="flex-grow"></span>')}</div>`;
+            }
+            
+            // Otherwise, wrap in a standard paragraph
+            return `<p class="leading-relaxed">${processInlineCommands(trimmedP)}</p>`;
         }).join('');
     }).join('');
 
+    // Final cleanup
     html = html.replace(/<p><\/p>/g, '');
 
     return `<div class="non-ai-rendered p-8 md:p-12 font-body bg-white text-foreground h-full">${html}</div>`;
