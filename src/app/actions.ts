@@ -66,6 +66,9 @@ function parseTabular(content: string, format: string): string {
 }
 
 function simpleLatexToHtml(latex: string, templateName?: string): string {
+    // Remove LaTeX comments, but preserve escaped percents \%
+    latex = latex.replace(/(?<!\\)%.*$/gm, '');
+
     let html = latex.match(/\\begin\{document\}([\s\S]*)\\end\{document\}/)?.[1] || latex;
 
     // --- Pre-processing for custom commands & typos ---
