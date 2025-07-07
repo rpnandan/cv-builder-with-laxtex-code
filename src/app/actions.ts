@@ -151,7 +151,7 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
             .join('');
             return `<ol>${items}</ol>`;
         });
-        html = html.replace(/\\begin\{tabular\}\s*\{(.+?)\}([\s\S]*?)\\end\{tabular\}/gs, (_, format, content) => {
+        html = html.replace(/\\begin\{tabular\}\s*\{((?:[^{}]|\{[^}]*\})+)\}([\s\S]*?)\\end\{tabular\}/gs, (_, format, content) => {
             return parseTabular(content, format);
         });
         changed = originalHtml !== html;
@@ -195,10 +195,13 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
         };
 
         for (const line of lines) {
-            if (line.includes('\\hfill')) {
+             // Trim trailing line breaks before checking for hfill
+            const cleanLine = line.trim().replace(/\\\\(?:\[.*?\])?\s*$/, '').trim();
+
+            if (cleanLine.includes('\\hfill')) {
                 flushBuffer(); // End the current paragraph
-                const segments = line.split(/\\hfill/g).map(s => {
-                    const cleanSegment = s.trim().replace(/\\\\(?:\[.*?\])?\s*$/, '');
+                const segments = cleanLine.split(/\\hfill/g).map(s => {
+                    const cleanSegment = s.trim();
                     return `<span>${processContent(cleanSegment)}</span>`;
                 });
                 resultHtml += `<div class="flex-container">${segments.join('')}</div>`;
