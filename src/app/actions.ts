@@ -61,18 +61,20 @@ function parseTabular(content: string, format: string): string {
     const rows = content.trim().split(/\\\\\s*/).filter(r => r.trim());
 
     const tableRows = rows.map(row => {
-        const cells = row.split('&').map((cell, index) => {
+        const separatorIndex = row.indexOf('&');
+        const cells = separatorIndex === -1
+            ? [row]
+            : [row.substring(0, separatorIndex), row.substring(separatorIndex + 1)];
+
+        const renderedCells = cells.map((cell, index) => {
             let cellContent = processContent(cell.trim());
             if (index === 0) {
                 const boldClass = hasBoldFirstCol ? 'font-bold' : '';
-                // The user's format string has an \hspace after the first column.
-                // We simulate this with extra padding on the right of the first cell.
-                // We also prevent the first column from wrapping to look cleaner.
                 return `<td class="${boldClass} pr-12 whitespace-nowrap">${cellContent}</td>`;
             }
             return `<td>${cellContent}</td>`;
         }).join('');
-        return `<tr>${cells}</tr>`;
+        return `<tr>${renderedCells}</tr>`;
     }).join('');
 
     return `<table class="w-full">${tableRows}</table>`;
@@ -154,7 +156,7 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
             .join('');
             return `<ol>${items}</ol>`;
         });
-        html = html.replace(/\\begin\{tabular\}\s*\{(.*)\}([\s\S]*?)\\end\{tabular\}/gs, (_, format, content) => {
+        html = html.replace(/\\begin\{tabular\}\s*\{(.*?)\}([\s\S]*?)\\end\{tabular\}/gs, (_, format, content) => {
             return parseTabular(content, format);
         });
         changed = originalHtml !== html;
