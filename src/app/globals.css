@@ -195,6 +195,47 @@
     @apply pl-2 space-y-2;
   }
 
+  /* Creative Column Template */
+  .template-creative-column {
+    --primary: 260 85% 65%; /* A creative purple */
+  }
+  .template-creative-column h2.r-section-title {
+    @apply border-l-8 border-primary pl-4 text-2xl font-bold tracking-tight border-b-0;
+  }
+  .template-creative-column .resume-header {
+    @apply text-center bg-primary/10 py-6 -mx-12 px-12;
+  }
+  .template-creative-column h1 {
+    @apply text-primary;
+  }
+
+  /* Academic CV Template */
+  .template-academic-cv {
+    --primary: 220 10% 40%; /* A more muted, professional dark slate gray */
+    @apply text-[11pt] leading-snug font-serif;
+  }
+  .template-academic-cv h1, .template-academic-cv h2, .template-academic-cv h3 {
+    @apply font-serif;
+  }
+  .template-academic-cv h1 {
+    @apply text-3xl font-bold text-center tracking-normal normal-case mb-1;
+  }
+  .template-academic-cv .resume-header {
+    @apply text-sm mb-4;
+  }
+  .template-academic-cv h2.r-section-title {
+    @apply text-base font-bold uppercase tracking-wider text-foreground mt-5 mb-2 border-b-2 border-border pb-1 text-center;
+  }
+  .template-academic-cv ul {
+    @apply list-none pl-2;
+  }
+  .template-academic-cv li {
+    @apply pl-4 relative before:content-['•'] before:absolute before:left-0 before:text-primary;
+  }
+  .template-academic-cv .flex-container {
+    @apply font-medium;
+  }
+
   /* Tech Professional Template */
   .template-tech-professional {
       --primary: 210 100% 56%; /* A more "techy" blue */
@@ -215,30 +256,6 @@
   }
   .template-tech-professional strong {
       @apply font-bold text-foreground;
-  }
-
-  /* Academic CV Template */
-  .template-academic-cv {
-    --primary: 220 10% 40%; /* A more muted, professional dark slate gray */
-    @apply text-[11pt] leading-snug;
-  }
-  .template-academic-cv h1 {
-    @apply text-3xl font-bold text-center tracking-normal normal-case mb-1;
-  }
-  .template-academic-cv .resume-header {
-    @apply text-sm mb-4;
-  }
-  .template-academic-cv h2.r-section-title {
-    @apply text-base font-bold uppercase tracking-wider text-foreground mt-5 mb-2 border-b-2 border-border pb-1 text-center;
-  }
-  .template-academic-cv ul {
-    @apply list-none pl-2;
-  }
-  .template-academic-cv li {
-    @apply pl-4 relative before:content-['•'] before:absolute before:left-0 before:text-primary;
-  }
-  .template-academic-cv .flex-container {
-    @apply font-medium;
   }
 
   /* Simple & Clean Template */
@@ -262,7 +279,10 @@
   .template-executive-suite {
       --primary: 200 20% 30%; /* Dark, desaturated cyan */
       --border: 200 20% 80%;
-      @apply text-[12pt];
+      @apply text-[12pt] font-serif;
+  }
+  .template-executive-suite h1, .template-executive-suite h2, .template-executive-suite h3 {
+    @apply font-serif;
   }
   .template-executive-suite .resume-header {
     @apply border-b-4 border-primary pb-4 mb-8;
@@ -282,7 +302,7 @@
     --primary: 16 100% 50%; /* A strong orange */
   }
   .template-bold-typography h1, .template-bold-typography h2.r-section-title, .template-bold-typography strong {
-    @apply font-black;
+    @apply font-black font-headline;
   }
   .template-bold-typography h1 {
     @apply text-5xl tracking-tighter;
@@ -293,20 +313,6 @@
   .template-bold-typography ul {
     list-style-type: square;
     @apply text-[15px];
-  }
-
-  /* Two-Tone Template */
-  .template-two-tone {
-    --primary: 345 90% 55%; /* A nice magenta/rose */
-  }
-  .template-two-tone .resume-header {
-    @apply bg-primary/10 p-8 m-0 -mx-12 -mt-12 mb-8;
-  }
-  .template-two-tone h1 {
-    @apply text-primary;
-  }
-  .template-two-tone h2.r-section-title {
-    @apply border-primary/50;
   }
 
   /* Infographic Style Template */
@@ -326,4 +332,197 @@
     content: '✓';
     @apply bg-primary text-primary-foreground rounded-full size-6 text-center font-bold leading-6 flex-shrink-0;
   }
+
+  /* Two-Tone Template */
+  .template-two-tone {
+    --primary: 345 90% 55%; /* A nice magenta/rose */
+  }
+  .template-two-tone .resume-header {
+    @apply bg-primary/10 p-8 m-0 -mx-12 -mt-12 mb-8;
+  }
+  .template-two-tone h1 {
+    @apply text-primary;
+  }
+  .template-two-tone h2.r-section-title {
+    @apply border-primary/50;
+  }
+
+  /* Project-Focused Template */
+  .template-project-focused {
+    --primary: 225 80% 55%;
+  }
+  .template-project-focused h2.r-section-title {
+    @apply bg-muted p-2 rounded-md font-bold;
+  }
+
+  /* Compact Template */
+  .template-compact {
+    @apply text-sm leading-tight;
+  }
+  .template-compact h1 { @apply text-3xl; }
+  .template-compact h2.r-section-title { @apply text-lg mt-3 mb-1; }
+  .template-compact p, .template-compact li, .template-compact table td {
+    @apply py-0 mb-1;
+  }
+  .template-compact ul { @apply mb-2; }
+
+  /* Elegant Script Template */
+  .template-elegant-script {
+    --primary: 340 40% 50%;
+    @apply font-serif;
+  }
+  .template-elegant-script h1, .template-elegant-script h2, .template-elegant-script h3 {
+    @apply font-serif;
+  }
+  .template-elegant-script h1 {
+    @apply font-normal italic tracking-wide;
+  }
+  .template-elegant-script h2.r-section-title {
+    @apply text-center font-normal tracking-widest uppercase border-b-2 border-primary/20;
+  }
+
+  /* Corporate Standard Template */
+  .template-corporate-standard {
+    --primary: 220 30% 45%;
+    @apply font-serif text-[11pt];
+  }
+  .template-corporate-standard h1, .template-corporate-standard h2, .template-corporate-standard h3 {
+    @apply font-headline;
+  }
+  .template-corporate-standard h2.r-section-title {
+    @apply text-primary font-bold text-base tracking-wider;
+  }
+
+  /* Startup Vibe Template */
+  .template-startup-vibe {
+    --primary: 45 100% 50%;
+    @apply font-body;
+  }
+  .template-startup-vibe h1 {
+    @apply text-primary font-bold;
+  }
+  .template-startup-vibe h2.r-section-title {
+    @apply border-none text-sm uppercase font-bold text-muted-foreground;
+  }
+  .template-startup-vibe a {
+    @apply text-primary/80;
+  }
+
+  /* Data Scientist Template */
+  .template-data-scientist {
+    --primary: 190 80% 50%;
+    @apply font-code text-[14px];
+  }
+  .template-data-scientist h1, .template-data-scientist h2, .template-data-scientist h3 {
+    @apply font-headline;
+  }
+  .template-data-scientist h2.r-section-title {
+    @apply border-b-2 border-dashed border-primary/30;
+  }
+  
+  /* Monochrome Template */
+  .template-monochrome {
+    --primary: 0 0% 20%;
+    --border: 0 0% 85%;
+    @apply text-gray-800;
+  }
+  .template-monochrome h1, .template-monochrome h2.r-section-title {
+    @apply text-black;
+  }
+  .template-monochrome a {
+    @apply text-black;
+  }
+  .template-monochrome .r-section-title {
+    @apply border-black/20;
+  }
+
+  /* Swiss Design Template */
+  .template-swiss-design {
+    --primary: 0 100% 50%;
+    @apply font-body leading-snug;
+  }
+  .template-swiss-design h1 {
+    @apply text-5xl font-extrabold text-left;
+  }
+  .template-swiss-design .resume-header { @apply text-left; }
+  .template-swiss-design h2.r-section-title {
+    @apply font-extrabold text-xl tracking-tight border-none;
+  }
+
+  /* Entry-Level Template */
+  .template-entry-level {
+    --primary: 140 60% 45%;
+    @apply text-base;
+  }
+  .template-entry-level h1 {
+    @apply text-4xl text-center;
+  }
+  .template-entry-level .resume-header {
+    @apply border-b-4 border-primary/50 pb-4;
+  }
+
+  /* Photo Resume Template */
+  .template-photo-resume .resume-header {
+    @apply flex flex-row-reverse items-center text-left justify-between border-b pb-6;
+  }
+  .template-photo-resume .resume-header::before {
+    content: '';
+    display: block;
+    width: 100px;
+    height: 100px;
+    border-radius: 9999px;
+    background-color: hsl(var(--muted));
+    flex-shrink: 0;
+    border: 4px solid hsl(var(--card));
+    box-shadow: 0 0 0 2px hsl(var(--primary));
+  }
+
+  /* Minimalist Dark Template */
+  .template-minimalist-dark {
+    --background: 240 6% 10%;
+    --foreground: 240 5% 95%;
+    --card: 240 6% 10%;
+    --card-foreground: 240 5% 95%;
+    --primary: 0 0% 100%;
+    --border: 240 4% 25%;
+    --muted-foreground: 240 5% 65%;
+    @apply bg-background text-foreground;
+  }
+  .template-minimalist-dark h2.r-section-title {
+    @apply border-primary/50 text-base font-semibold tracking-widest uppercase;
+  }
+  .template-minimalist-dark a { @apply text-foreground hover:underline; }
+
+  /* Graphic Designer Template */
+  .template-graphic-designer {
+    --primary: 330 90% 65%;
+    @apply font-headline;
+  }
+  .template-graphic-designer h1 { @apply text-6xl font-black text-center text-primary; }
+  .template-graphic-designer .resume-header { @apply text-center; }
+  .template-graphic-designer h2.r-section-title {
+    @apply text-primary font-bold text-center text-sm uppercase tracking-[0.2em] border-none;
+  }
+
+  /* Legal Professional Template */
+  .template-legal-professional {
+    --primary: 220 15% 30%;
+    @apply font-serif text-[12pt] leading-relaxed;
+  }
+  .template-legal-professional h1, .template-legal-professional h2, .template-legal-professional h3 { @apply font-serif; }
+  .template-legal-professional h1 { @apply text-center text-3xl font-bold; }
+  .template-legal-professional h2.r-section-title {
+    @apply text-center text-base font-bold border-y-2 border-primary/50 py-1 my-4;
+  }
+
+  /* Scientific CV Template */
+  .template-scientific-cv {
+    --primary: 210 30% 40%;
+    @apply text-[10pt] font-serif;
+  }
+  .template-scientific-cv h1, .template-scientific-cv h2, .template-scientific-cv h3 { @apply font-serif; }
+  .template-scientific-cv h2.r-section-title {
+    @apply font-bold text-lg;
+  }
+
 }

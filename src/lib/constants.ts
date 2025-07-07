@@ -115,4 +115,8 @@ export const TEMPLATES = [
   { name: 'Swiss Design', imageUrl: 'https://placehold.co/400x566', hint: 'swiss design' },
   { name: 'Entry-Level', imageUrl: 'https://placehold.co/400x566', hint: 'entry-level' },
   { name: 'Photo Resume', imageUrl: 'https://placehold.co/400x566', hint: 'photo resume' },
+  { name: 'Minimalist Dark', imageUrl: 'https://placehold.co/400x566', hint: 'dark resume' },
+  { name: 'Graphic Designer', imageUrl: 'https://placehold.co/400x566', hint: 'graphic design' },
+  { name: 'Legal Professional', imageUrl: 'https://placehold.co/400x566', hint: 'legal resume' },
+  { name: 'Scientific CV', imageUrl: 'https://placehold.co/400x566', hint: 'scientific cv' },
 ];
