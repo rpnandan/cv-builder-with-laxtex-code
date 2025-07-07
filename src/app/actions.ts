@@ -16,12 +16,8 @@ const actionInputSchema = z.object({
 function processContent(text: string): string {
     if (!text) return '';
 
-    // Pass 1: Handle links first. This is a common source of issues and must be done before other replacements.
-    let processedText = text.replace(/\\href\{([^}]*)\}\{([^}]*)\}/g, (_, url, linkText) => {
-        return `<a href="${url.trim()}" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
-    });
-    
-    // Pass 2: Iteratively handle nested formatting commands. This is safer than recursion.
+    // Iteratively handle nested formatting commands. This is safer than recursion.
+    let processedText = text;
     let changed = true;
     while(changed) {
         const originalText = processedText;
@@ -30,7 +26,6 @@ function processContent(text: string): string {
             .replace(/{\\Huge\s(.*?)}|\\Huge\{(.*?)\}/gs, '<h1>$1$2</h1>')
             .replace(/{\\LARGE\s(.*?)}|\\LARGE\{(.*?)\}/gs, '<h2>$1$2</h2>')
             .replace(/{\\Large\s(.*?)}|\\Large\{(.*?)\}/gs, '<h3>$1$2</h3>')
-            .replace(/{\\large\s(.*?)}|\\large\{(.*?)\}/gs, '<div class="text-lg font-semibold mb-1">$1$2</div>')
             .replace(/\\textbf\{(.*?)\}|{\\bf\s?(.*?)}/gs, '<strong>$1$2</strong>')
             .replace(/\\textit\{(.*?)\}/gs, '<em>$1</em>')
             .replace(/\\underline\{(.*?)\}/gs, '<span class="underline">$1</span>')
@@ -39,7 +34,7 @@ function processContent(text: string): string {
         changed = originalText !== processedText;
     }
     
-    // Pass 3: Handle escaped characters, symbols, and line breaks
+    // Handle escaped characters, symbols, and line breaks
     processedText = processedText
         .replace(/\\itemsep\s*.*?\s*\{.*?\}/g, '') // Remove itemsep
         .replace(/\\(tab|itab)\{.*?\}/g, '')      // Remove custom tab commands
@@ -85,11 +80,23 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
 
     let html = latex.match(/\\begin\{document\}([\s\S]*)\\end\{document\}/)?.[1] || latex;
 
-    // --- Pre-processing for custom commands & header ---
-    html = html.replace(/\\(\s*[\r\n])/g, '\\\\$1'); // Fix single backslash at EOL
+    // --- Pass 1: Pre-process \href commands to avoid parsing issues with other commands ---
+    const hrefMap = new Map<string, string>();
+    let hrefIndex = 0;
+    // Replace all \href commands with a unique, safe placeholder.
+    html = html.replace(/\\href\{([^}]*)\}\{([^}]*)\}/g, (_, url, linkText) => {
+        const placeholder = `___HREF_PLACEHOLDER_${hrefIndex++}___`;
+        // The link text itself might have formatting, so process it.
+        const anchorTag = `<a href="${url.trim()}" target="_blank" rel="noopener noreferrer">${processContent(linkText)}</a>`;
+        hrefMap.set(placeholder, anchorTag);
+        return placeholder;
+    });
 
-    const nameMatch = latex.match(/\\name\{(.*?)\}/);
-    const addressMatches = Array.from(latex.matchAll(/\\address\{(.*?)\}/g));
+    // --- Pass 2: Process document structure (header, sections, etc.) ---
+    html = html.replace(/\\(\s*[\r\n])/g, '\\\\$1');
+
+    const nameMatch = html.match(/\\name\{(.*?)\}/);
+    const addressMatches = Array.from(html.matchAll(/\\address\{(.*?)\}/g));
     
     let headerHtml = '';
     if (nameMatch) {
@@ -196,10 +203,15 @@ function simpleLatexToHtml(latex: string, templateName?: string): string {
     html = html.replace(/\\item/g, ''); // Remove stray \item commands
     html = html.replace(/<p><\/p>|<p>\s*<\/p>/g, ''); // Remove empty paragraphs
 
-    const finalHtml = headerHtml + html;
+    let finalHtmlResult = headerHtml + html;
+
+    // --- Pass 3: Restore hrefs from placeholders ---
+    hrefMap.forEach((anchorTag, placeholder) => {
+        finalHtmlResult = finalHtmlResult.replace(new RegExp(placeholder, 'g'), anchorTag);
+    });
 
     const templateClassName = templateName ? `template-${templateName.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}` : 'template-classic-professional';
-    return `<div class="non-ai-rendered ${templateClassName} p-8 md:p-12 font-body bg-card text-card-foreground h-full">${finalHtml}</div>`;
+    return `<div class="non-ai-rendered ${templateClassName} p-8 md:p-12 font-body bg-card text-card-foreground h-full">${finalHtmlResult}</div>`;
 }
 
 export async function generateResumeAction(
