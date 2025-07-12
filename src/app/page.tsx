@@ -1,5 +1,5 @@
-import ResumePage from '@/components/ResumePage';
+import HomePage from '@/components/HomePage';
 
 export default function Home() {
-  return <ResumePage />;
+  return <HomePage />;
 }
