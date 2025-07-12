@@ -162,7 +162,7 @@
       @apply pb-1;
   }
   .non-ai-rendered table td {
-      @apply py-1 pr-4;
+      @apply py-1;
   }
   .non-ai-rendered .resume-header {
     @apply mb-6;
@@ -320,7 +320,7 @@
     --primary: 150 70% 40%; /* A vibrant sea green */
   }
   .template-infographic-style .r-section-title {
-    @apply bg-primary text-primary-foreground rounded-full px-4 py-1 text-center border-none text-lg;
+    @apply bg-primary/20 text-primary rounded-full px-4 py-1 text-center border-none text-lg font-bold;
   }
   .template-infographic-style ul {
     @apply list-none pl-0;
@@ -526,3 +526,5 @@
   }
 
 }
+
+    
