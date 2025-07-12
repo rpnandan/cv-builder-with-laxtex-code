@@ -87,9 +87,9 @@ export default function HomePage() {
             {TEMPLATES.map((template) => (
               <div key={template.name} className="group relative">
                 <Link href={`/resume/${template.name}?code=${encodeURIComponent(latexCode)}`} passHref>
-                  <Card className="transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl overflow-hidden">
-                    <CardContent className="p-0">
-                       <div className="aspect-[8.5/11] w-full">
+                  <Card className="transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl overflow-hidden aspect-[8.5/11]">
+                    <CardContent className="p-0 h-full">
+                       <div className="w-full h-full">
                          {isClient ? (
                            <ResumePreview
                              latexCode={latexCode}

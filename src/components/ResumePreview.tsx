@@ -63,8 +63,13 @@ export default function ResumePreview({
   if (isThumbnail) {
     return (
       <div
-        className="w-full h-full bg-background overflow-hidden"
-        style={{ transform: 'scale(0.2)', transformOrigin: 'top left', width: '500%', height: '500%' }}
+        className="w-full h-full bg-card overflow-hidden"
+        style={{ 
+          transform: 'scale(0.2)', 
+          transformOrigin: 'top left', 
+          width: '500%', 
+          height: '500%',
+        }}
       >
         {showLoadingState ? (
           <div className="p-12 space-y-4">
@@ -79,6 +84,8 @@ export default function ResumePreview({
             </div>
           </div>
         ) : (
+          // The clipping is handled by the parent's `overflow-hidden`.
+          // The inner div will be full-size, but only the top-left portion will be visible.
           <div className="w-full h-full" dangerouslySetInnerHTML={{ __html: renderedHtml || '' }} />
         )}
       </div>
