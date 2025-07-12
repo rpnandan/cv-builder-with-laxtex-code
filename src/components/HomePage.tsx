@@ -88,19 +88,21 @@ export default function HomePage() {
               <div key={template.name} className="group relative">
                 <Link href={`/resume/${template.name}?code=${encodeURIComponent(latexCode)}`} passHref>
                   <Card className="transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl overflow-hidden">
-                    <CardContent className="p-0 aspect-[8.5/11]">
-                       {isClient ? (
-                         <ResumePreview
-                           latexCode={latexCode}
-                           templateName={template.name}
-                           isLoading={isGenerating}
-                           isThumbnail={true}
-                         />
-                       ) : (
-                         <div className="p-4">
-                             <Skeleton className="w-full h-full" />
-                         </div>
-                       )}
+                    <CardContent className="p-0">
+                       <div className="aspect-[8.5/11] w-full">
+                         {isClient ? (
+                           <ResumePreview
+                             latexCode={latexCode}
+                             templateName={template.name}
+                             isLoading={isGenerating}
+                             isThumbnail={true}
+                           />
+                         ) : (
+                           <div className="p-4">
+                               <Skeleton className="w-full h-full" />
+                           </div>
+                         )}
+                       </div>
                     </CardContent>
                   </Card>
                 </Link>
